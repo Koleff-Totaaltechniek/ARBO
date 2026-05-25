@@ -211,13 +211,13 @@
 
 <!-- TABS -->
 <div class="tabs-nav no-print">
-  <button class="tab-btn active" onclick="showTab(0,this)">1. TRA</button>
-  <button class="tab-btn" onclick="showTab(1,this)">2. RI&amp;E</button>
-  <button class="tab-btn" onclick="showTab(2,this)">3. V&amp;G-plan</button>
-  <button class="tab-btn" onclick="showTab(3,this)">4. Steiger</button>
-  <button class="tab-btn" onclick="showTab(4,this)">5. PBM</button>
-  <button class="tab-btn" onclick="showTab(5,this)">6. Handtekeningen</button>
-  <button class="tab-btn" onclick="showTab(6,this)">📊 Archief</button>
+  <button class="tab-btn active" onclick="showTab(0)">1. TRA</button>
+  <button class="tab-btn" onclick="showTab(1)">2. RI&amp;E</button>
+  <button class="tab-btn" onclick="showTab(2)">3. V&amp;G-plan</button>
+  <button class="tab-btn" onclick="showTab(3)">4. Steiger</button>
+  <button class="tab-btn" onclick="showTab(4)">5. PBM</button>
+  <button class="tab-btn" onclick="showTab(5)">6. Handtekeningen</button>
+  <button class="tab-btn" onclick="showTab(6)">📊 Archief</button>
 </div>
 
 <div class="main">
@@ -299,7 +299,7 @@
   </div>
   <div class="form-footer no-print">
     <div></div>
-    <button class="btn btn-primary" onclick="showTab(1,document.querySelectorAll('.tab-btn')[1])">Volgende: RI&amp;E →</button>
+    <button class="btn btn-primary" onclick="showTab(1)">Volgende: RI&amp;E →</button>
   </div>
 </div>
 
@@ -342,8 +342,8 @@
     </div>
   </div>
   <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(0,document.querySelectorAll('.tab-btn')[0])">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(2,document.querySelectorAll('.tab-btn')[2])">Volgende: V&amp;G →</button>
+    <button class="btn btn-secondary" onclick="showTab(0)">← Terug</button>
+    <button class="btn btn-primary" onclick="showTab(2)">Volgende: V&amp;G →</button>
   </div>
 </div>
 
@@ -378,8 +378,8 @@
     </div>
   </div>
   <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(1,document.querySelectorAll('.tab-btn')[1])">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(3,document.querySelectorAll('.tab-btn')[3])">Volgende: Steiger →</button>
+    <button class="btn btn-secondary" onclick="showTab(1)">← Terug</button>
+    <button class="btn btn-primary" onclick="showTab(3)">Volgende: Steiger →</button>
   </div>
 </div>
 
@@ -427,8 +427,8 @@
     </div>
   </div>
   <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(2,document.querySelectorAll('.tab-btn')[2])">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(4,document.querySelectorAll('.tab-btn')[4])">Volgende: PBM →</button>
+    <button class="btn btn-secondary" onclick="showTab(2)">← Terug</button>
+    <button class="btn btn-primary" onclick="showTab(4)">Volgende: PBM →</button>
   </div>
 </div>
 
@@ -473,8 +473,8 @@
     </div>
   </div>
   <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(3,document.querySelectorAll('.tab-btn')[3])">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(5,document.querySelectorAll('.tab-btn')[5])">Volgende: Handtekeningen →</button>
+    <button class="btn btn-secondary" onclick="showTab(3)">← Terug</button>
+    <button class="btn btn-primary" onclick="showTab(5)">Volgende: Handtekeningen →</button>
   </div>
 </div>
 
@@ -527,7 +527,7 @@
     </div>
   </div>
   <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(4,document.querySelectorAll('.tab-btn')[4])">← Terug</button>
+    <button class="btn btn-secondary" onclick="showTab(4)">← Terug</button>
     <button class="btn btn-save" onclick="saveToDatabase()" id="saveBtnFooter">💾 Opslaan in database</button>
   </div>
 </div>
@@ -553,8 +553,8 @@
 let supabase = null;
 
 // VERVANG DEZE TWEE WAARDEN MET JOUW SUPABASE GEGEVENS:
-const SUPABASE_URL = 'sb_publishable_QJ3NwPLbGUORmZ1vV7Dbbw_manfC5ej';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xc2FmeGh5dnRheXBleGt5a2lsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzcyMjgsImV4cCI6MjA5NTMxMzIyOH0.Nrqbm3KW1JaIAezFXJ1KNLAWur86YJkLhgw5tXyLs0o';
+const SUPABASE_URL = 'JOUW_SUPABASE_URL_HIER';
+const SUPABASE_KEY = 'JOUW_SUPABASE_ANON_KEY_HIER';
 
 function initSupabase(url, key) {
   try {
@@ -758,7 +758,7 @@ async function viewSubmission(id) {
       if (cb) cb.checked = data.checklist_status[k];
     });
   }
-  showTab(0, document.querySelectorAll('.tab-btn')[0]);
+  showTab(0);
   showToast('Formulier geladen uit archief', 'success');
   updateProgress();
 }
@@ -766,11 +766,11 @@ async function viewSubmission(id) {
 // ============================================================
 // UI HELPERS
 // ============================================================
-function showTab(idx, btn) {
-  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sec' + idx).classList.add('active');
-  btn.classList.add('active');
+function showTab(idx) {
+  document.querySelectorAll('.form-section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
+  var sec = document.getElementById('sec' + idx);
+  if (sec) sec.classList.add('active');
   if (idx === 6) loadArchive();
   window.scrollTo(0, 0);
 }
