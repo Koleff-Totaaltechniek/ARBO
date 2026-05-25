@@ -353,15 +353,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--gray
           <p style="font-size:12px;color:var(--gray-600);margin-bottom:10px">Score = Kans (1–5) × Ernst (1–5). Hoog ≥ 9 | Midden 4–8 | Laag ≤ 3</p>
           <table class="risk-table">
             <thead><tr><th style="width:24%">Taak / Gevaar</th><th style="width:7%">Kans</th><th style="width:7%">Ernst</th><th style="width:10%">Score</th><th>Beheersmaatregelen</th><th style="width:32px" class="no-print"></th></tr></thead>
-            <tbody id="riskBody">
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-h">12 – HOOG</span></td><td><textarea class="maatregel-txt">Volharnas EN 361, valbeveiliger, leuning 1,0m, plintboard 15cm, steiger geïnspecteerd</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea class="maatregel-txt">Panelen afdekken bij daglicht, gecertificeerd elektricien, NEN 1010</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea class="maatregel-txt">Afzetting openbare weg, helmplicht, gereedschap vastzetten</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">6 – MIDDEN</span></td><td><textarea class="maatregel-txt">FFP2/FFP3 masker, snijvaste handschoenen, lange mouwen, VDB aanwezig</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea class="maatregel-txt">Stoptrigger: wind >6 Bft, regen, gladheid, onweer</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-l">6 – LAAG</span></td><td><textarea class="maatregel-txt">Teamtillen, hulpmateriaal, kniebeschermers</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-              <tr><td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea class="maatregel-txt">Brandblusser op dak en steiger, geen open vuur bij isolatie</textarea></td><td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td></tr>
-            </tbody>
+            <tbody id="riskBody"></tbody>
           </table>
           <button class="btn btn-secondary no-print" onclick="addRiskRow()" style="font-size:12px;padding:6px 12px;margin-top:10px">+ Risico toevoegen</button>
         </div>
@@ -892,16 +884,63 @@ const RISICO_DB = {
   'Onbevoegden op bouwplaats':             { kans:2, ernst:3, maatregel:'Bouwplaats afsluiten met hekken, bebording "Verboden toegang", na werktijd materieel opgeruimd en afgesloten' },
 };
 
-function populateRiskSelects() {
-  var options = '<option value="">-- kies gevaar --</option>' +
+// Shared helper: build one options string (called after RISICO_DB is defined)
+function riskOptionsHtml() {
+  return '<option value="">-- kies gevaar --</option>' +
     Object.keys(RISICO_DB).map(function(k) {
-      return '<option value="' + k + '">' + k + '</option>';
+      return '<option value="' + k.replace(/"/g,'&quot;') + '">' + k + '</option>';
     }).join('') +
     '<option value="__custom__">✏️ Eigen omschrijving...</option>';
-  document.querySelectorAll('.taak-sel').forEach(function(sel) {
-    var current = sel.dataset.current || '';
-    sel.innerHTML = options;
-    if (current) sel.value = current;
+}
+
+// Build one empty risk row and append to tbody
+function addRiskRow(taak, kans, ernst, maatregel) {
+  var tr = document.createElement('tr');
+  var kansOpts = [1,2,3,4,5].map(function(n) {
+    return '<option' + (n == (kans||3) ? ' selected' : '') + '>' + n + '</option>';
+  }).join('');
+  var ernstOpts = [1,2,3,4,5].map(function(n) {
+    return '<option' + (n == (ernst||3) ? ' selected' : '') + '>' + n + '</option>';
+  }).join('');
+  tr.innerHTML =
+    '<td><select class="taak-sel" onchange="autoFillRisk(this)">' + riskOptionsHtml() + '</select></td>' +
+    '<td><select class="kans-sel" onchange="calcRisk(this)">' + kansOpts + '</select></td>' +
+    '<td><select class="ernst-sel" onchange="calcRisk(this)">' + ernstOpts + '</select></td>' +
+    '<td class="score-cell"><span class="badge badge-m">–</span></td>' +
+    '<td><textarea class="maatregel-txt" placeholder="Selecteer een gevaar of type zelf...">' + (maatregel||'') + '</textarea></td>' +
+    '<td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px" title="Rij verwijderen">✕</button></td>';
+  document.getElementById('riskBody').appendChild(tr);
+  // Set taak value if provided
+  if (taak) {
+    var sel = tr.querySelector('.taak-sel');
+    if (RISICO_DB[taak]) {
+      sel.value = taak;
+    } else {
+      // Custom value - replace select with text input
+      var td = sel.parentNode;
+      td.innerHTML = '<input type="text" class="custom-taak" value="' + taak.replace(/"/g,'&quot;') + '">';
+    }
+  }
+  calcRisk(tr.querySelector('.kans-sel'));
+}
+
+// Build default 7 empty rows for a new project
+var DEFAULT_RISKS = [
+  'Werken op hoogte – steiger',
+  'Elektrisch gevaar – DC spanning zonnepanelen',
+  'Vallend materieel – gereedschap/panelen',
+  'Gevaarlijke stoffen – glaswol / steenwol',
+  'Ongunstige weersomstandigheden',
+  'Zwaar tillen – dakplaten >25 kg',
+  'Brandgevaar – open vuur / brander'
+];
+
+function buildDefaultRiskRows() {
+  var tbody = document.getElementById('riskBody');
+  tbody.innerHTML = '';
+  DEFAULT_RISKS.forEach(function(taak) {
+    var r = RISICO_DB[taak];
+    addRiskRow(taak, r ? r.kans : 3, r ? r.ernst : 3, r ? r.maatregel : '');
   });
 }
 
@@ -909,52 +948,26 @@ function autoFillRisk(sel) {
   var row = sel.closest('tr');
   var val = sel.value;
   if (val === '__custom__') {
-    // Replace select with text input
     var td = sel.parentNode;
-    var inp = document.createElement('input');
-    inp.type = 'text';
-    inp.placeholder = 'Typ eigen gevaar...';
-    inp.className = 'custom-taak';
-    td.innerHTML = '';
-    td.appendChild(inp);
-    inp.focus();
+    td.innerHTML = '<input type="text" class="custom-taak" placeholder="Typ eigen gevaar...">';
+    td.querySelector('input').focus();
     return;
   }
   if (!val || !RISICO_DB[val]) return;
   var r = RISICO_DB[val];
-  // Set Kans
   row.querySelector('.kans-sel').value = r.kans;
-  // Set Ernst
   row.querySelector('.ernst-sel').value = r.ernst;
-  // Set maatregel
   row.querySelector('.maatregel-txt').value = r.maatregel;
-  // Recalc score
   calcRisk(row.querySelector('.kans-sel'));
+  updateProgress();
 }
 
 function removeRiskRow(btn) {
-  var row = btn.closest('tr');
   var tbody = document.getElementById('riskBody');
   if (tbody.querySelectorAll('tr').length > 1) {
-    row.remove();
+    btn.closest('tr').remove();
     updateProgress();
   }
-}
-
-function addRiskRow() {
-  var tr = document.createElement('tr');
-  tr.innerHTML = '<td><select class="taak-sel" onchange="autoFillRisk(this)"><option value="">-- kies gevaar --</option></select></td>' +
-    '<td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td>' +
-    '<td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td>' +
-    '<td class="score-cell"><span class="badge badge-m">9 – MIDDEN</span></td>' +
-    '<td><textarea class="maatregel-txt" placeholder="Selecteer eerst een gevaar..."></textarea></td>' +
-    '<td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td>';
-  document.getElementById('riskBody').appendChild(tr);
-  // Populate the new select
-  var newSel = tr.querySelector('.taak-sel');
-  newSel.innerHTML = '<option value="">-- kies gevaar --</option>' +
-    Object.keys(RISICO_DB).map(function(k) { return '<option value="' + k + '">' + k + '</option>'; }).join('') +
-    '<option value="__custom__">✏️ Eigen omschrijving...</option>';
 }
 
 function updateProgress() {
@@ -983,7 +996,7 @@ function clearForm() {
   var ziekenhuis = document.getElementById('ziekenhuis');
   if (ziekenhuis) ziekenhuis.value = 'OLVG Amsterdam – 020 599 9111';
   // Reset risk scores
-  document.querySelectorAll('.kans-sel, .ernst-sel').forEach(function(s) { calcRisk(s); });
+  buildDefaultRiskRows();
   updateProgress();
 }
 
@@ -1057,31 +1070,13 @@ function fillForm(data) {
     });
   }
   // Restore risk rows from saved data
-  if (data.risico_analyse && Array.isArray(data.risico_analyse)) {
-    var tbody = document.getElementById('riskBody');
-    tbody.innerHTML = '';
+  if (data.risico_analyse && Array.isArray(data.risico_analyse) && data.risico_analyse.length > 0) {
+    document.getElementById('riskBody').innerHTML = '';
     data.risico_analyse.forEach(function(r) {
-      var tr = document.createElement('tr');
-      var isKnown = r.taak && RISICO_DB[r.taak];
-      var taakHtml = isKnown
-        ? '<select class="taak-sel" onchange="autoFillRisk(this)"></select>'
-        : '<input type="text" class="custom-taak" value="' + (r.taak||'').replace(/"/g,'&quot;') + '">';
-      tr.innerHTML = '<td>' + taakHtml + '</td>' +
-        '<td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>' +
-        '<td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>' +
-        '<td class="score-cell"><span class="badge badge-m">–</span></td>' +
-        '<td><textarea class="maatregel-txt">' + (r.maatregel||'') + '</textarea></td>' +
-        '<td class="no-print"><button onclick="removeRiskRow(this)" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:2px 4px">✕</button></td>';
-      tbody.appendChild(tr);
-      if (isKnown) {
-        var sel = tr.querySelector('.taak-sel');
-        sel.dataset.current = r.taak;
-      }
-      if (r.kans) tr.querySelector('.kans-sel').value = r.kans;
-      if (r.ernst) tr.querySelector('.ernst-sel').value = r.ernst;
-      calcRisk(tr.querySelector('.kans-sel'));
+      addRiskRow(r.taak, r.kans, r.ernst, r.maatregel);
     });
-    populateRiskSelects();
+  } else {
+    buildDefaultRiskRows();
   }
   document.querySelectorAll('#riskBody .kans-sel, #riskBody .ernst-sel').forEach(function(s) { calcRisk(s); });
 }
@@ -1100,8 +1095,7 @@ function showToast(msg, type) {
 // ============================================================
 // INIT
 // ============================================================
-document.querySelectorAll('.kans-sel').forEach(function(s) { calcRisk(s); });
-populateRiskSelects();
+buildDefaultRiskRows();
 checkAuth();
 </script>
 </body>
