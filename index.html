@@ -3,818 +3,974 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARBO Formulieren – Koleff Solar</title>
-
-<!-- Supabase JS -->
+<title>ARBO – Koleff Totaaltechniek</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-  :root {
-    --blue: #1a56db;
-    --blue-light: #e8f0fe;
-    --blue-dark: #1e3a5f;
-    --orange: #e85d04;
-    --green: #1a7f37;
-    --green-light: #e6f4ea;
-    --red: #c0392b;
-    --red-light: #fdecea;
-    --amber-light: #fffbeb;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-400: #9ca3af;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --border: #d1d5db;
-    --radius: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; color: var(--gray-800); background: var(--gray-100); min-height: 100vh; }
+:root {
+  --blue:#1a56db;--blue-dark:#1e3a5f;--blue-light:#e8f0fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-600:#4b5563;--gray-800:#1f2937;
+  --border:#d1d5db;--radius:8px;
+  --orange:#e85d04;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--gray-800);background:var(--gray-100);min-height:100vh}
 
-  .topbar { background: var(--blue-dark); color: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar h1 { font-size: 16px; font-weight: 600; }
-  .topbar p { font-size: 11px; opacity: 0.75; margin-top: 1px; }
-  .topbar-btns { display: flex; gap: 8px; }
+/* ===== VIEWS ===== */
+.view{display:none}
+.view.active{display:block}
 
-  .btn { padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; transition: all .15s; }
-  .btn-pdf { background: var(--orange); color: white; }
-  .btn-pdf:hover { background: #c0440a; }
-  .btn-save { background: #16a34a; color: white; }
-  .btn-save:hover { background: #15803d; }
-  .btn-save:disabled { background: #9ca3af; cursor: not-allowed; }
-  .btn-primary { background: var(--blue); color: white; }
-  .btn-primary:hover { background: #1447b3; }
-  .btn-secondary { background: white; color: var(--gray-800); border: 1.5px solid var(--border); }
-  .btn-secondary:hover { background: var(--gray-100); }
+/* ===== LOGIN ===== */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f 0%,#1a56db 100%);padding:20px}
+.login-logo{text-align:center;margin-bottom:32px;color:white}
+.login-logo h1{font-size:24px;font-weight:700;margin-bottom:4px}
+.login-logo p{font-size:13px;opacity:.75}
+.login-logo .company{font-size:11px;opacity:.6;margin-top:8px}
+.login-card{background:white;border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-card h2{font-size:18px;font-weight:600;margin-bottom:24px;color:var(--gray-800)}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:12px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.login-field input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;transition:border-color .15s}
+.login-field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.login-btn{width:100%;padding:12px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s}
+.login-btn:hover{background:#1447b3}
+.login-btn:disabled{background:var(--gray-400);cursor:not-allowed}
+.login-error{background:var(--red-light);color:var(--red);padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;display:none}
 
-  .progress-bar-wrap { background: #e2eaf7; padding: 10px 24px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); }
-  .progress-label { font-size: 12px; color: var(--blue-dark); font-weight: 600; white-space: nowrap; }
-  .progress-track { flex: 1; background: #c5d5f0; border-radius: 99px; height: 8px; overflow: hidden; }
-  .progress-fill { background: var(--blue); height: 100%; border-radius: 99px; transition: width .3s; }
-  .progress-pct { font-size: 12px; font-weight: 700; color: var(--blue); min-width: 36px; text-align: right; }
+/* ===== TOPBAR ===== */
+.topbar{background:var(--blue-dark);color:white;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.topbar-brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+.topbar-logo{width:32px;height:32px;background:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--blue-dark)}
+.topbar-brand h1{font-size:15px;font-weight:600}
+.topbar-brand p{font-size:11px;opacity:.65;margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-user{font-size:12px;opacity:.75}
+.btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-outline{background:transparent;color:white;border:1.5px solid rgba(255,255,255,.3)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:#1447b3}
+.btn-success{background:var(--green);color:white}
+.btn-success:hover{background:#15803d}
+.btn-danger{background:var(--red);color:white}
+.btn-danger:hover{background:#b91c1c}
+.btn-secondary{background:white;color:var(--gray-800);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--gray-100)}
+.btn-orange{background:var(--orange);color:white}
+.btn-orange:hover{background:#c0440a}
+.btn-sm{padding:5px 10px;font-size:12px}
 
-  .tabs-nav { background: white; border-bottom: 2px solid var(--gray-200); display: flex; overflow-x: auto; padding: 0 20px; }
-  .tab-btn { padding: 12px 16px; border: none; background: none; font-size: 13px; font-weight: 500; color: var(--gray-600); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all .15s; display: flex; align-items: center; gap: 6px; }
-  .tab-btn:hover { color: var(--blue); }
-  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+/* ===== DASHBOARD ===== */
+.dash-wrap{max-width:1100px;margin:0 auto;padding:28px 16px 60px}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.dash-header h2{font-size:20px;font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-card .num{font-size:28px;font-weight:700;color:var(--blue-dark)}
+.stat-card .lbl{font-size:12px;color:var(--gray-600);margin-top:2px}
+.projects-table-wrap{background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.projects-table-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 120px;gap:8px;padding:10px 16px;background:var(--gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-600)}
+.project-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 120px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--gray-100);align-items:center;transition:background .1s}
+.project-row:last-child{border-bottom:none}
+.project-row:hover{background:var(--gray-50)}
+.project-name{font-weight:600;font-size:13px;color:var(--gray-800)}
+.project-sub{font-size:11px;color:var(--gray-600);margin-top:1px}
+.badge-status{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.badge-done{background:var(--green-light);color:#14532d}
+.badge-partial{background:var(--amber-light);color:#78350f}
+.badge-new{background:var(--blue-light);color:#1e3a8a}
+.row-actions{display:flex;gap:6px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--gray-400)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-bar input{flex:1;min-width:200px;padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit}
+.search-bar input:focus{outline:none;border-color:var(--blue)}
 
-  .main { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
-  .form-section { display: none; }
-  .form-section.active { display: block; }
+/* ===== FORM VIEW ===== */
+.form-topbar{background:white;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.form-topbar-left{display:flex;align-items:center;gap:12px}
+.form-topbar h2{font-size:15px;font-weight:600;color:var(--gray-800)}
+.form-topbar p{font-size:12px;color:var(--gray-600)}
+.progress-bar-wrap{background:#e2eaf7;padding:8px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+.progress-label{font-size:12px;color:var(--blue-dark);font-weight:600;white-space:nowrap}
+.progress-track{flex:1;background:#c5d5f0;border-radius:99px;height:7px;overflow:hidden}
+.progress-fill{background:var(--blue);height:100%;border-radius:99px;transition:width .3s}
+.progress-pct{font-size:12px;font-weight:700;color:var(--blue);min-width:36px;text-align:right}
+.tabs-nav{background:white;border-bottom:2px solid var(--gray-200);display:flex;overflow-x:auto;padding:0 20px}
+.tab-btn{padding:11px 14px;border:none;background:none;font-size:13px;font-weight:500;color:var(--gray-600);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.tab-btn:hover{color:var(--blue)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.form-main{max-width:960px;margin:0 auto;padding:20px 16px 80px}
+.form-section{display:none}
+.form-section.active{display:block}
+.card{background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
+.card-head{background:var(--blue-dark);color:white;padding:11px 18px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-body{padding:18px}
+.section-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--blue);margin:14px 0 7px;padding-bottom:4px;border-bottom:1px solid var(--blue-light)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select,.field textarea{border:1.5px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--gray-800);font-family:inherit;background:white;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.field textarea{min-height:60px;resize:vertical}
+.risk-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.risk-table th{background:var(--gray-100);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-600);border-bottom:2px solid var(--border)}
+.risk-table td{padding:6px 8px;border-bottom:1px solid var(--gray-100);vertical-align:top}
+.risk-table tr:last-child td{border-bottom:none}
+.risk-table input,.risk-table select,.risk-table textarea{width:100%;border:1px solid var(--border);border-radius:4px;padding:5px 7px;font-size:12px;font-family:inherit;color:var(--gray-800);background:white}
+.risk-table textarea{min-height:48px;resize:vertical}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-h{background:#fee2e2;color:#991b1b}
+.badge-m{background:#fef3c7;color:#92400e}
+.badge-l{background:#dcfce7;color:#14532d}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:17px;height:17px;margin-top:1px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.check-item label{cursor:pointer;font-size:13px;line-height:1.4}
+.check-sub{font-size:11px;color:var(--gray-600);margin-top:2px}
+.sig-area{border:2px dashed var(--border);border-radius:6px;height:75px;display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px;background:var(--gray-50);margin-top:6px}
+.alert{padding:10px 14px;border-radius:6px;font-size:12px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.alert-info{background:var(--blue-light);color:#1e3a8a;border-left:3px solid var(--blue)}
+.alert-warn{background:var(--amber-light);color:#78350f;border-left:3px solid #f59e0b}
+.alert-danger{background:var(--red-light);color:#7f1d1d;border-left:3px solid var(--red)}
+.form-footer{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
 
-  .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
-  .card-head { background: var(--blue-dark); color: white; padding: 12px 18px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .card-body { padding: 18px; }
+/* ===== COMPANY FOOTER ===== */
+.company-footer{background:white;border-top:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.company-footer .co-info{font-size:11px;color:var(--gray-600);line-height:1.7}
+.company-footer .co-info strong{color:var(--gray-800)}
 
-  .section-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--blue); margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--blue-light); }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#15803d}
+.toast.error{background:#b91c1c}
 
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 12px; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: .3px; }
-  .field input, .field select, .field textarea { border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 13px; color: var(--gray-800); font-family: inherit; background: white; transition: border-color .15s; width: 100%; }
-  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
-  .field textarea { min-height: 64px; resize: vertical; }
+/* ===== MODAL ===== */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:white;border-radius:12px;padding:28px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:16px}
+.modal-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 
-  .risk-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
-  .risk-table th { background: var(--gray-100); padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--gray-600); border-bottom: 2px solid var(--border); }
-  .risk-table td { padding: 6px 8px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
-  .risk-table tr:last-child td { border-bottom: none; }
-  .risk-table input, .risk-table select, .risk-table textarea { width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 5px 7px; font-size: 12px; font-family: inherit; color: var(--gray-800); background: white; }
-  .risk-table textarea { min-height: 50px; resize: vertical; }
-
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-  .badge-h { background: #fee2e2; color: #991b1b; }
-  .badge-m { background: #fef3c7; color: #92400e; }
-  .badge-l { background: #dcfce7; color: #14532d; }
-
-  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
-  .check-item:last-child { border-bottom: none; }
-  .check-item input[type=checkbox] { width: 17px; height: 17px; margin-top: 1px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
-  .check-item label { cursor: pointer; font-size: 13px; line-height: 1.4; }
-  .check-sub { font-size: 11px; color: var(--gray-600); margin-top: 2px; }
-
-  .sig-area { border: 2px dashed var(--border); border-radius: 6px; height: 80px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; background: var(--gray-50); margin-top: 6px; }
-
-  .alert { padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; }
-  .alert-info { background: var(--blue-light); color: #1e3a8a; border-left: 3px solid var(--blue); }
-  .alert-warn { background: var(--amber-light); color: #78350f; border-left: 3px solid #f59e0b; }
-  .alert-danger { background: var(--red-light); color: #7f1d1d; border-left: 3px solid var(--red); }
-  .alert-success { background: var(--green-light); color: #14532d; border-left: 3px solid var(--green); }
-
-  .form-footer { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
-
-  /* TOAST NOTIFICATION */
-  .toast { position: fixed; bottom: 24px; right: 24px; background: #1f2937; color: white; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 9999; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 360px; }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { background: #15803d; }
-  .toast.error { background: #b91c1c; }
-
-  /* CONFIG PANEL */
-  .config-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; }
-  .config-overlay.open { display: flex; }
-  .config-box { background: white; border-radius: 12px; padding: 28px; width: 520px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-  .config-box h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .config-box p { font-size: 13px; color: var(--gray-600); margin-bottom: 20px; line-height: 1.5; }
-  .config-box .field { margin-bottom: 14px; }
-  .config-box input { font-size: 12px; font-family: 'Courier New', monospace; }
-  .config-actions { display: flex; gap: 10px; margin-top: 20px; }
-  .btn-connect { background: var(--blue); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-connect:hover { background: #1447b3; }
-  .conn-status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 14px; padding: 10px 14px; border-radius: 6px; background: var(--gray-50); border: 1px solid var(--border); }
-  .conn-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gray-400); }
-  .conn-dot.ok { background: var(--green); }
-  .conn-dot.err { background: var(--red); }
-
-  /* SAVED SUBMISSIONS PANEL */
-  .submissions-panel { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
-  .submissions-panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
-  .sub-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
-  .sub-row:last-child { border-bottom: none; }
-  .sub-date { color: var(--gray-600); font-size: 12px; }
-  .btn-view { background: var(--blue-light); color: var(--blue); border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; }
-
-  @media print {
-    .topbar, .tabs-nav, .progress-bar-wrap, .form-footer, .no-print, .toast, .config-overlay { display: none !important; }
-    body { background: white; font-size: 12px; }
-    .main { max-width: 100%; padding: 0; }
-    .form-section { display: block !important; }
-    .card { break-inside: avoid; margin-bottom: 12px; }
-    .card-head { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    h2.print-title { font-size: 16px; color: #1e3a5f; padding: 8px 0; margin: 16px 0 8px; border-bottom: 2px solid #1a56db; }
-    .section-break { page-break-before: always; }
-    .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
-
-  @media (max-width: 600px) {
-    .grid2, .grid3 { grid-template-columns: 1fr; }
-    .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
-    .topbar-btns { width: 100%; }
-    .risk-table { font-size: 11px; }
-  }
+/* ===== PRINT ===== */
+@media print{
+  .topbar,.form-topbar,.tabs-nav,.progress-bar-wrap,.form-footer,.no-print,.toast,.modal-backdrop,.company-footer{display:none!important}
+  body{background:white;font-size:12px}
+  .form-main{max-width:100%;padding:0}
+  .form-section{display:block!important}
+  .card{break-inside:avoid;margin-bottom:12px}
+  .card-head{background:#1e3a5f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2.print-title{font-size:16px;color:#1e3a5f;padding:8px 0;margin:16px 0 8px;border-bottom:2px solid #1a56db}
+  .section-break{page-break-before:always}
+}
+@media(max-width:700px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .projects-table-head,.project-row{grid-template-columns:1fr 1fr;gap:6px}
+  .projects-table-head span:nth-child(n+3),.project-row>div:nth-child(n+3){display:none}
+  .row-actions{display:flex}
+  .project-row>div:last-child{display:flex}
+}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- SUPABASE CONFIG MODAL -->
-<div class="config-overlay" id="configOverlay">
-  <div class="config-box">
-    <h2>🔗 Supabase verbinding instellen</h2>
-    <p>Voer je Supabase project URL en Anon Key in. Je vindt deze in je Supabase dashboard onder <strong>Project Settings → API</strong>.</p>
-    <div class="field">
-      <label>Supabase Project URL</label>
-      <input type="text" id="cfgUrl" placeholder="https://jouwproject.supabase.co">
+<!-- ===== LOGIN VIEW ===== -->
+<div class="view active" id="viewLogin">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div style="width:64px;height:64px;background:white;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;color:#1e3a5f;margin:0 auto 16px">KT</div>
+      <h1>Koleff Totaaltechniek</h1>
+      <p>ARBO Formulieren Systeem</p>
+      <div class="company">Rosbayerweg 145, 1521RW Wormerveer &nbsp;|&nbsp; KvK 97970557</div>
     </div>
-    <div class="field">
-      <label>Supabase Anon Key (public)</label>
-      <input type="text" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+    <div class="login-card">
+      <h2>Inloggen</h2>
+      <div class="login-error" id="loginError"></div>
+      <div class="login-field">
+        <label>E-mailadres</label>
+        <input type="email" id="loginEmail" placeholder="naam@koleff.nl" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>Wachtwoord</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Inloggen →</button>
     </div>
-    <div class="conn-status" id="connStatus">
-      <span class="conn-dot" id="connDot"></span>
-      <span id="connMsg">Nog niet verbonden</span>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD VIEW ===== -->
+<div class="view" id="viewDash">
+  <div class="topbar">
+    <div class="topbar-brand" onclick="showView('dash')">
+      <div class="topbar-logo">KT</div>
+      <div>
+        <h1>Koleff Totaaltechniek</h1>
+        <p>ARBO Formulieren</p>
+      </div>
     </div>
-    <div class="config-actions">
-      <button class="btn-connect" onclick="saveConfig()">Verbinding testen & opslaan</button>
-      <button class="btn btn-secondary" onclick="document.getElementById('configOverlay').classList.remove('open')">Sluiten</button>
+    <div class="topbar-right no-print">
+      <span class="topbar-user" id="userEmail"></span>
+      <button class="btn btn-success" onclick="newProject()">+ Nieuw project</button>
+      <button class="btn btn-outline" onclick="doLogout()">Uitloggen</button>
+    </div>
+  </div>
+
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div>
+        <h2>📋 Projecten overzicht</h2>
+        <p style="font-size:13px;color:var(--gray-600);margin-top:2px">Alle ARBO-dossiers van Koleff Totaaltechniek</p>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="num" id="statTotal">–</div><div class="lbl">Totaal projecten</div></div>
+      <div class="stat-card"><div class="num" id="statThisMonth">–</div><div class="lbl">Deze maand</div></div>
+      <div class="stat-card"><div class="num" id="statComplete">–</div><div class="lbl">Volledig ingevuld</div></div>
+      <div class="stat-card"><div class="num" id="statPending">–</div><div class="lbl">In behandeling</div></div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Zoeken op projectnaam, adres, opdrachtgever..." oninput="filterProjects()">
+      <button class="btn btn-secondary" onclick="loadDashboard()">↻ Verversen</button>
+      <button class="btn btn-success no-print" onclick="newProject()">+ Nieuw project</button>
+    </div>
+
+    <div class="projects-table-wrap">
+      <div class="projects-table-head">
+        <span>Project</span>
+        <span>Opdrachtgever</span>
+        <span>Datum</span>
+        <span>Leidinggevende</span>
+        <span>Status</span>
+        <span>Acties</span>
+      </div>
+      <div id="projectsList">
+        <div class="empty-state"><div class="icon">⏳</div><p>Laden...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-footer">
+    <div class="co-info">
+      <strong>Koleff Totaaltechniek</strong><br>
+      Rosbayerweg 145, 1521RW Wormerveer
+    </div>
+    <div class="co-info" style="text-align:right">
+      KvK-nummer: 97970557 &nbsp;|&nbsp; BTW-id: NL005300225B29<br>
+      <a href="mailto:info@koleff.nl" style="color:var(--blue)">info@koleff.nl</a> &nbsp;|&nbsp; koleff.nl
     </div>
   </div>
 </div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <span style="font-size:22px">🏗️</span>
-    <div>
-      <h1>ARBO Formulieren – Koleff Solar</h1>
-      <p id="topbarProject">Kinkerstraat 30-3, Amsterdam | Dakrenovatie + Zonnepanelen</p>
+<!-- ===== FORM VIEW ===== -->
+<div class="view" id="viewForm">
+  <div class="topbar">
+    <div class="topbar-brand" onclick="backToDash()">
+      <div class="topbar-logo">KT</div>
+      <div>
+        <h1>Koleff Totaaltechniek</h1>
+        <p>ARBO Formulieren</p>
+      </div>
+    </div>
+    <div class="topbar-right no-print">
+      <button class="btn btn-outline" onclick="backToDash()">← Dashboard</button>
+      <button class="btn btn-success" id="saveBtn" onclick="saveProject()">💾 Opslaan</button>
+      <button class="btn btn-orange" onclick="window.print()">🖨️ PDF</button>
     </div>
   </div>
-  <div class="topbar-btns no-print">
-    <button class="btn btn-secondary" onclick="document.getElementById('configOverlay').classList.add('open')" id="dbBtn" style="font-size:12px;padding:7px 12px">
-      <span id="dbIndicator">⚪</span> Database
-    </button>
-    <button class="btn btn-save" id="saveBtn" onclick="saveToDatabase()" disabled>💾 Opslaan in DB</button>
-    <button class="btn btn-pdf" onclick="window.print()">🖨️ PDF</button>
+
+  <div class="form-topbar no-print">
+    <div class="form-topbar-left">
+      <div>
+        <h2 id="formTitle">Nieuw project</h2>
+        <p id="formSubtitle">Vul alle tabbladen in en sla op</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-danger btn-sm no-print" id="deleteBtn" onclick="confirmDelete()" style="display:none">🗑 Verwijderen</button>
+    </div>
   </div>
-</div>
 
-<!-- PROGRESS -->
-<div class="progress-bar-wrap no-print">
-  <span class="progress-label">Voortgang:</span>
-  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-  <span class="progress-pct" id="progressPct">0%</span>
-</div>
+  <div class="progress-bar-wrap no-print">
+    <span class="progress-label">Voortgang:</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
 
-<!-- TABS -->
-<div class="tabs-nav no-print">
-  <button class="tab-btn active" onclick="showTab(0)">1. TRA</button>
-  <button class="tab-btn" onclick="showTab(1)">2. RI&amp;E</button>
-  <button class="tab-btn" onclick="showTab(2)">3. V&amp;G-plan</button>
-  <button class="tab-btn" onclick="showTab(3)">4. Steiger</button>
-  <button class="tab-btn" onclick="showTab(4)">5. PBM</button>
-  <button class="tab-btn" onclick="showTab(5)">6. Handtekeningen</button>
-  <button class="tab-btn" onclick="showTab(6)">📊 Archief</button>
-</div>
+  <div class="tabs-nav no-print">
+    <button class="tab-btn active" onclick="showTab(0)">1. TRA</button>
+    <button class="tab-btn" onclick="showTab(1)">2. RI&amp;E</button>
+    <button class="tab-btn" onclick="showTab(2)">3. V&amp;G-plan</button>
+    <button class="tab-btn" onclick="showTab(3)">4. Steiger</button>
+    <button class="tab-btn" onclick="showTab(4)">5. PBM</button>
+    <button class="tab-btn" onclick="showTab(5)">6. Handtekeningen</button>
+  </div>
 
-<div class="main">
+  <div class="form-main">
 
-<!-- ===== TAB 1: TRA ===== -->
-<div class="form-section active" id="sec0">
-  <h2 class="print-title">Taak Risico Analyse (TRA)</h2>
-  <div class="alert alert-danger">⚠️ <strong>Verplicht document</strong> – TRA vóór aanvang werken op hoogte (Arbobesluit art. 3.16)</div>
+    <!-- TAB 1: TRA -->
+    <div class="form-section active" id="sec0">
+      <h2 class="print-title">Taak Risico Analyse (TRA)</h2>
+      <div class="alert alert-danger">⚠️ <strong>Verplicht</strong> – TRA vóór aanvang werken op hoogte (Arbobesluit art. 3.16)</div>
+      <div class="card">
+        <div class="card-head">📋 Projectgegevens</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="field"><label>Projectnaam</label><input type="text" id="proj_naam" placeholder="Bijv. Dakrenovatie Kinkerstraat" oninput="updateProgress()"></div>
+            <div class="field"><label>Opdrachtgever</label><input type="text" id="opdrachtgever" placeholder="Naam opdrachtgever" oninput="updateProgress()"></div>
+            <div class="field"><label>Uitvoerende firma</label><input type="text" id="firma" value="Koleff Totaaltechniek" oninput="updateProgress()"></div>
+            <div class="field"><label>Adres werklocatie</label><input type="text" id="adres" placeholder="Straat + nr, postcode, stad" oninput="updateProgress()"></div>
+            <div class="field"><label>Datum uitvoering</label><input type="date" id="datum_uitv" oninput="updateProgress()"></div>
+            <div class="field"><label>Aanvangstijd</label><input type="time" id="tijd_aanv" oninput="updateProgress()"></div>
+            <div class="field"><label>Leidinggevende / voorman</label><input type="text" id="leidinggevende" placeholder="Naam + telefoonnummer" oninput="updateProgress()"></div>
+            <div class="field"><label>TRA opgesteld door</label><input type="text" id="tra_opsteller" placeholder="Naam + functie" oninput="updateProgress()"></div>
+            <div class="field"><label>Aantal medewerkers</label><input type="number" id="aantal_mw" placeholder="Bijv. 3" oninput="updateProgress()"></div>
+            <div class="field"><label>Weersverwachting</label>
+              <select id="weer" onchange="updateProgress()">
+                <option value="">-- selecteer --</option>
+                <option>Droog en rustig ✓</option>
+                <option>Bewolkt, wind &lt;6 Bft ✓</option>
+                <option>Regen – NIET uitvoeren ✗</option>
+                <option>Wind &gt;6 Bft – NIET uitvoeren ✗</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">⚠️ Risicoanalyse per taak</div>
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--gray-600);margin-bottom:10px">Score = Kans (1–5) × Ernst (1–5). Hoog ≥ 9 | Midden 4–8 | Laag ≤ 3</p>
+          <table class="risk-table">
+            <thead><tr><th style="width:22%">Taak / Gevaar</th><th style="width:7%">Kans</th><th style="width:7%">Ernst</th><th style="width:10%">Score</th><th>Beheersmaatregelen</th></tr></thead>
+            <tbody id="riskBody">
+              <tr><td><input type="text" value="Werken op hoogte – steiger"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-h">12 – HOOG</span></td><td><textarea>Volharnas EN 361, valbeveiliger, leuning 1,0m, plintboard 15cm, steiger geïnspecteerd</textarea></td></tr>
+              <tr><td><input type="text" value="Elektrisch gevaar – DC spanning panelen"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Panelen afdekken bij daglicht, gecertificeerd elektricien, NEN 1010</textarea></td></tr>
+              <tr><td><input type="text" value="Vallend materieel"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Afzetting openbare weg, helmplicht, gereedschap vastzetten</textarea></td></tr>
+              <tr><td><input type="text" value="Gevaarlijke stoffen – isolatiemateriaal"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">6 – MIDDEN</span></td><td><textarea>FFP2/FFP3 masker, snijvaste handschoenen, lange mouwen, VDB aanwezig</textarea></td></tr>
+              <tr><td><input type="text" value="Ongunstige weersomstandigheden"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Stoptrigger: wind >6 Bft, regen, gladheid, onweer</textarea></td></tr>
+              <tr><td><input type="text" value="Zwaar tillen &gt;25kg"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-l">6 – LAAG</span></td><td><textarea>Teamtillen, hulpmateriaal, kniebeschermers</textarea></td></tr>
+              <tr><td><input type="text" value="Brandgevaar – isolatie / bitumen"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Brandblusser op dak en steiger, geen open vuur bij isolatie</textarea></td></tr>
+            </tbody>
+          </table>
+          <button class="btn btn-secondary no-print" onclick="addRiskRow()" style="font-size:12px;padding:6px 12px;margin-top:10px">+ Risico toevoegen</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">🚑 EHBO & noodprocedure</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="field"><label>EHBO-koffer aanwezig</label><select id="ehbo_aanwezig" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Ja ✓</option><option>Nee – direct regelen ✗</option></select></div>
+            <div class="field"><label>Locatie EHBO-koffer</label><input type="text" id="ehbo_locatie" placeholder="Bijv. werkbus / begane grond" oninput="updateProgress()"></div>
+            <div class="field"><label>EHBO-verantwoordelijke</label><input type="text" id="ehbo_naam" placeholder="Naam" oninput="updateProgress()"></div>
+            <div class="field"><label>Dichtstbijzijnde ziekenhuis</label><input type="text" id="ziekenhuis" value="OLVG Amsterdam – 020 599 9111" oninput="updateProgress()"></div>
+            <div class="field"><label>Alarmnummer spoed</label><input type="text" value="112" readonly style="background:#fee2e2;font-weight:700;color:#c0392b"></div>
+            <div class="field"><label>NL Arbeidsinspectie</label><input type="text" value="0800-5151" readonly></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <div></div>
+        <button class="btn btn-primary" onclick="showTab(1)">Volgende: RI&amp;E →</button>
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="card-head">📋 Projectgegevens</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field"><label>Projectnaam</label><input type="text" id="proj_naam" value="Dakrenovatie Kinkerstraat 30-3" oninput="updateProgress()"></div>
-        <div class="field"><label>Opdrachtgever</label><input type="text" id="opdrachtgever" value="Nynke Wolf-Stuyt" oninput="updateProgress()"></div>
-        <div class="field"><label>Uitvoerende firma</label><input type="text" id="firma" value="Koleff Solar" oninput="updateProgress()"></div>
-        <div class="field"><label>Adres werklocatie</label><input type="text" id="adres" value="Kinkerstraat 30-3, 1053 DV Amsterdam" oninput="updateProgress()"></div>
-        <div class="field"><label>Datum uitvoering</label><input type="date" id="datum_uitv" oninput="updateProgress()"></div>
-        <div class="field"><label>Aanvangstijd</label><input type="time" id="tijd_aanv" oninput="updateProgress()"></div>
-        <div class="field"><label>Leidinggevende / voorman</label><input type="text" id="leidinggevende" placeholder="Naam + telefoonnummer" oninput="updateProgress()"></div>
-        <div class="field"><label>TRA opgesteld door</label><input type="text" id="tra_opsteller" placeholder="Naam + functie" oninput="updateProgress()"></div>
-        <div class="field"><label>Aantal medewerkers</label><input type="number" id="aantal_mw" placeholder="Bijv. 3" oninput="updateProgress()"></div>
-        <div class="field"><label>Weersverwachting</label>
-          <select id="weer" onchange="updateProgress()">
-            <option value="">-- selecteer --</option>
-            <option>Droog en rustig ✓</option>
-            <option>Bewolkt, wind &lt;6 Bft ✓</option>
-            <option>Regen – NIET uitvoeren ✗</option>
-            <option>Wind &gt;6 Bft – NIET uitvoeren ✗</option>
-          </select>
+    <!-- TAB 2: RI&E -->
+    <div class="form-section" id="sec1">
+      <h2 class="print-title section-break">RI&E – Risico-Inventarisatie & Evaluatie</h2>
+      <div class="alert alert-info">ℹ️ <strong>Arbowet art. 5</strong> – verplicht voor alle werkgevers vóór aanvang.</div>
+      <div class="card">
+        <div class="card-head">✅ Checklist</div>
+        <div class="card-body">
+          <div class="section-tag">Fysieke gevaren</div>
+          <div class="check-item"><input type="checkbox" id="rie1" onchange="updateProgress()"><label for="rie1">Valgevaar geïdentificeerd en beheersmaatregel vastgesteld<div class="check-sub">Harnas, leuningen, bordes gecontroleerd</div></label></div>
+          <div class="check-item"><input type="checkbox" id="rie2" onchange="updateProgress()"><label for="rie2">Gevaar vallend materieel beoordeeld</label></div>
+          <div class="check-item"><input type="checkbox" id="rie3" onchange="updateProgress()"><label for="rie3">Fysieke belasting geïnventariseerd (tillen, knielen)</label></div>
+          <div class="check-item"><input type="checkbox" id="rie4" onchange="updateProgress()"><label for="rie4">Weersomstandigheden als risicofactor opgenomen</label></div>
+          <div class="section-tag">Gevaarlijke stoffen</div>
+          <div class="check-item"><input type="checkbox" id="rie5" onchange="updateProgress()"><label for="rie5">VDB isolatiemateriaal aanwezig op locatie</label></div>
+          <div class="check-item"><input type="checkbox" id="rie6" onchange="updateProgress()"><label for="rie6">Blootstelling glaswol / PIR beoordeeld<div class="check-sub">FFP2/FFP3, handschoenen, lange mouwen, bril</div></label></div>
+          <div class="check-item"><input type="checkbox" id="rie7" onchange="updateProgress()"><label for="rie7">Asbest uitgesloten of inventarisatie gepland<div class="check-sub">Pre-2000 gebouw: SC-540 verplicht vóór sloop</div></label></div>
+          <div class="section-tag">Elektrisch & brand</div>
+          <div class="check-item"><input type="checkbox" id="rie8" onchange="updateProgress()"><label for="rie8">DC-spanning zonnepanelen als gevaar aangemerkt</label></div>
+          <div class="check-item"><input type="checkbox" id="rie9" onchange="updateProgress()"><label for="rie9">Brandgevaar geïnventariseerd – brandblusser aanwezig</label></div>
+          <div class="check-item"><input type="checkbox" id="rie10" onchange="updateProgress()"><label for="rie10">Noodschakelaar elektra bekend bij alle medewerkers</label></div>
+          <div class="section-tag">Bouwplaats & organisatie</div>
+          <div class="check-item"><input type="checkbox" id="rie11" onchange="updateProgress()"><label for="rie11">Sanitaire voorzieningen en drinkwater geregeld</label></div>
+          <div class="check-item"><input type="checkbox" id="rie12" onchange="updateProgress()"><label for="rie12">VCA-certificaten medewerkers gecontroleerd op geldigheid</label></div>
+          <div class="check-item"><input type="checkbox" id="rie13" onchange="updateProgress()"><label for="rie13">Afzetting bouwplaats / openbare weg aangebracht</label></div>
+          <div class="check-item"><input type="checkbox" id="rie14" onchange="updateProgress()"><label for="rie14">Steigervergunning gemeente ontvangen</label></div>
+          <div class="check-item"><input type="checkbox" id="rie15" onchange="updateProgress()"><label for="rie15">Omwonenden geïnformeerd over werkzaamheden</label></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">📝 Evaluatie</div>
+        <div class="card-body">
+          <div class="field"><label>Restrisico's / bijzonderheden</label><textarea id="rie_rest" oninput="updateProgress()"></textarea></div>
+          <div class="grid2" style="margin-top:10px">
+            <div class="field"><label>RI&E opgesteld door</label><input type="text" id="rie_opsteller" placeholder="Naam + functie" oninput="updateProgress()"></div>
+            <div class="field"><label>Datum</label><input type="date" id="rie_datum" onchange="updateProgress()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <button class="btn btn-secondary" onclick="showTab(0)">← Terug</button>
+        <button class="btn btn-primary" onclick="showTab(2)">Volgende: V&amp;G →</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: V&G -->
+    <div class="form-section" id="sec2">
+      <h2 class="print-title section-break">V&G-plan</h2>
+      <div class="card">
+        <div class="card-head">🏗️ Projectpartijen</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="field"><label>Opdrachtgever</label><input type="text" id="vg_opdrachtgever" oninput="updateProgress()"></div>
+            <div class="field"><label>Hoofd-aannemer</label><input type="text" id="vg_aannemer" value="Koleff Totaaltechniek" oninput="updateProgress()"></div>
+            <div class="field"><label>V&G coördinator</label><input type="text" id="vg_coord" placeholder="Naam + tel." oninput="updateProgress()"></div>
+            <div class="field"><label>Steigerbouwer (onderaannemer)</label><input type="text" id="steiger_firma" placeholder="Bedrijf + VCA-nr." oninput="updateProgress()"></div>
+            <div class="field"><label>Startdatum</label><input type="date" id="vg_start" onchange="updateProgress()"></div>
+            <div class="field"><label>Einddatum</label><input type="date" id="vg_eind" onchange="updateProgress()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">📋 Veiligheidsregels</div>
+        <div class="card-body">
+          <div class="check-item"><input type="checkbox" id="vg1" checked onchange="updateProgress()"><label for="vg1">Veiligheidshelm EN 397 verplicht op gehele bouwplaats</label></div>
+          <div class="check-item"><input type="checkbox" id="vg2" checked onchange="updateProgress()"><label for="vg2">Veiligheidsschoenen S3 verplicht</label></div>
+          <div class="check-item"><input type="checkbox" id="vg3" checked onchange="updateProgress()"><label for="vg3">Werken op hoogte >2,5m: harnas + verankeringspunt min. 12 kN</label></div>
+          <div class="check-item"><input type="checkbox" id="vg4" checked onchange="updateProgress()"><label for="vg4">Hi-vis vest nabij openbare weg</label></div>
+          <div class="check-item"><input type="checkbox" id="vg5" checked onchange="updateProgress()"><label for="vg5">Werkstop bij windkracht >6 Bft, regen, gladheid, onweer</label></div>
+          <div class="check-item"><input type="checkbox" id="vg6" checked onchange="updateProgress()"><label for="vg6">Bouwplaats afgezet, niet toegankelijk voor onbevoegden</label></div>
+          <div class="check-item"><input type="checkbox" id="vg7" onchange="updateProgress()"><label for="vg7">Dagelijkse toolboxmeeting bij aanvang werkzaamheden</label></div>
+          <div class="field" style="margin-top:12px"><label>Bijzonderheden / afspraken</label><textarea id="vg_bijzonder" oninput="updateProgress()"></textarea></div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <button class="btn btn-secondary" onclick="showTab(1)">← Terug</button>
+        <button class="btn btn-primary" onclick="showTab(3)">Volgende: Steiger →</button>
+      </div>
+    </div>
+
+    <!-- TAB 4: STEIGER -->
+    <div class="form-section" id="sec3">
+      <h2 class="print-title section-break">Steiger Inspectierapport</h2>
+      <div class="alert alert-danger">⚠️ Steiger NOOIT gebruiken zonder goedgekeurd inspectierapport (NEN-EN 12811)</div>
+      <div class="card">
+        <div class="card-head">🏗️ Steigergegevens</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="field"><label>Steigertype</label><select id="steiger_type" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Gevelsteiger (buissteiger)</option><option>Framesteiger</option><option>Rolsteiger</option></select></div>
+            <div class="field"><label>Locatie steiger</label><input type="text" id="steiger_loc" oninput="updateProgress()"></div>
+            <div class="field"><label>Bouwhoogte (m)</label><input type="number" id="steiger_hoogte" oninput="updateProgress()"></div>
+            <div class="field"><label>Belastingsklasse</label><select id="steiger_klasse" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Klasse 2 – 150 kg/m²</option><option selected>Klasse 3 – 200 kg/m²</option><option>Klasse 4 – 300 kg/m²</option></select></div>
+            <div class="field"><label>Gemonteerd door + certificaat</label><input type="text" id="steiger_monteur" placeholder="Naam – VCA-nr." oninput="updateProgress()"></div>
+            <div class="field"><label>Datum inspectie</label><input type="date" id="steiger_datum" onchange="updateProgress()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">🔍 Inspectiechecklist NEN-EN 12811</div>
+        <div class="card-body">
+          <div class="check-item"><input type="checkbox" id="st1" onchange="updateProgress()"><label for="st1">Fundering / grondankers stabiel – geen verzakking</label></div>
+          <div class="check-item"><input type="checkbox" id="st2" onchange="updateProgress()"><label for="st2">Staanders verticaal (max. afwijking 1:100)</label></div>
+          <div class="check-item"><input type="checkbox" id="st3" onchange="updateProgress()"><label for="st3">Koppelstukken stevig vastgezet</label></div>
+          <div class="check-item"><input type="checkbox" id="st4" onchange="updateProgress()"><label for="st4">Ankers in gevel correct aangebracht</label></div>
+          <div class="check-item"><input type="checkbox" id="st5" onchange="updateProgress()"><label for="st5">Leuning aanwezig op minimaal 1,00 m hoogte</label></div>
+          <div class="check-item"><input type="checkbox" id="st6" onchange="updateProgress()"><label for="st6">Tussenregel op ca. 0,50 m</label></div>
+          <div class="check-item"><input type="checkbox" id="st7" onchange="updateProgress()"><label for="st7">Plintboard minimaal 15 cm hoog</label></div>
+          <div class="check-item"><input type="checkbox" id="st8" onchange="updateProgress()"><label for="st8">Vloerdelen volledig gelegd, geen gaten >25mm</label></div>
+          <div class="check-item"><input type="checkbox" id="st9" onchange="updateProgress()"><label for="st9">Toegang via interne ladder of trap</label></div>
+          <div class="check-item"><input type="checkbox" id="st10" onchange="updateProgress()"><label for="st10">Afzetting op openbare weg aangebracht</label></div>
+          <div class="check-item"><input type="checkbox" id="st11" onchange="updateProgress()"><label for="st11">Steigervergunning gemeente aanwezig</label></div>
+          <div class="field" style="margin-top:12px"><label>Uitkomst inspectie</label>
+            <select id="steiger_uitkomst" onchange="updateProgress()">
+              <option value="">-- selecteer --</option><option>✅ GOEDGEKEURD</option><option>❌ AFGEKEURD</option><option>⚠️ VOORWAARDELIJK</option>
+            </select>
+          </div>
+          <div class="field" style="margin-top:10px"><label>Gebreken / correcties</label><textarea id="steiger_gebreken" oninput="updateProgress()"></textarea></div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <button class="btn btn-secondary" onclick="showTab(2)">← Terug</button>
+        <button class="btn btn-primary" onclick="showTab(4)">Volgende: PBM →</button>
+      </div>
+    </div>
+
+    <!-- TAB 5: PBM -->
+    <div class="form-section" id="sec4">
+      <h2 class="print-title section-break">PBM-uitgifte & Ontvangst</h2>
+      <div class="card">
+        <div class="card-head">🦺 Medewerker 1</div>
+        <div class="card-body">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label>Naam medewerker</label><input type="text" id="pbm1_naam" oninput="updateProgress()"></div>
+            <div class="field"><label>Functie</label><input type="text" id="pbm1_functie" oninput="updateProgress()"></div>
+            <div class="field"><label>Datum uitgifte</label><input type="date" id="pbm1_datum" onchange="updateProgress()"></div>
+            <div class="field"><label>Uitgegeven door</label><input type="text" id="pbm1_door" oninput="updateProgress()"></div>
+          </div>
+          <div class="check-item"><input type="checkbox" id="p1a" onchange="updateProgress()"><label for="p1a">Veiligheidshelm EN 397</label></div>
+          <div class="check-item"><input type="checkbox" id="p2a" onchange="updateProgress()"><label for="p2a">Veiligheidsschoenen S3</label></div>
+          <div class="check-item"><input type="checkbox" id="p3a" onchange="updateProgress()"><label for="p3a">Volharnas EN 361 + lanyard</label></div>
+          <div class="check-item"><input type="checkbox" id="p4a" onchange="updateProgress()"><label for="p4a">Valbeveiliger EN 360</label></div>
+          <div class="check-item"><input type="checkbox" id="p5a" onchange="updateProgress()"><label for="p5a">Werkhandschoenen EN 388</label></div>
+          <div class="check-item"><input type="checkbox" id="p6a" onchange="updateProgress()"><label for="p6a">Veiligheidsbril EN 166</label></div>
+          <div class="check-item"><input type="checkbox" id="p7a" onchange="updateProgress()"><label for="p7a">Stofmasker FFP2/FFP3 EN 149</label></div>
+          <div class="check-item"><input type="checkbox" id="p8a" onchange="updateProgress()"><label for="p8a">Hi-vis vest EN ISO 20471</label></div>
+          <div class="sig-area">Handtekening medewerker 1</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">🦺 Medewerker 2</div>
+        <div class="card-body">
+          <div class="grid2" style="margin-bottom:12px">
+            <div class="field"><label>Naam medewerker</label><input type="text" id="pbm2_naam" oninput="updateProgress()"></div>
+            <div class="field"><label>Functie</label><input type="text" id="pbm2_functie" oninput="updateProgress()"></div>
+          </div>
+          <div class="check-item"><input type="checkbox" id="p1b" onchange="updateProgress()"><label for="p1b">Veiligheidshelm EN 397</label></div>
+          <div class="check-item"><input type="checkbox" id="p2b" onchange="updateProgress()"><label for="p2b">Veiligheidsschoenen S3</label></div>
+          <div class="check-item"><input type="checkbox" id="p3b" onchange="updateProgress()"><label for="p3b">Volharnas EN 361 + lanyard</label></div>
+          <div class="check-item"><input type="checkbox" id="p4b" onchange="updateProgress()"><label for="p4b">Stofmasker FFP2/FFP3</label></div>
+          <div class="check-item"><input type="checkbox" id="p5b" onchange="updateProgress()"><label for="p5b">Werkhandschoenen + Hi-vis vest</label></div>
+          <div class="sig-area">Handtekening medewerker 2</div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <button class="btn btn-secondary" onclick="showTab(3)">← Terug</button>
+        <button class="btn btn-primary" onclick="showTab(5)">Volgende: Handtekeningen →</button>
+      </div>
+    </div>
+
+    <!-- TAB 6: HANDTEKENINGEN -->
+    <div class="form-section" id="sec5">
+      <h2 class="print-title section-break">Toolboxmeeting & Akkoordverklaring</h2>
+      <div class="card">
+        <div class="card-head">🗣️ Toolboxmeeting</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="field"><label>Datum meeting</label><input type="date" id="toolbox_datum" onchange="updateProgress()"></div>
+            <div class="field"><label>Aanvangstijd</label><input type="time" id="toolbox_tijd" onchange="updateProgress()"></div>
+            <div class="field"><label>Leidinggevende</label><input type="text" id="toolbox_leider" oninput="updateProgress()"></div>
+          </div>
+          <div class="section-tag">Besproken onderwerpen</div>
+          <div class="check-item"><input type="checkbox" id="tb1" onchange="updateProgress()"><label for="tb1">TRA doorgenomen en risico's toegelicht</label></div>
+          <div class="check-item"><input type="checkbox" id="tb2" onchange="updateProgress()"><label for="tb2">Vluchtroute en noodprocedure uitgelegd</label></div>
+          <div class="check-item"><input type="checkbox" id="tb3" onchange="updateProgress()"><label for="tb3">EHBO-koffer en brandblusser aangewezen</label></div>
+          <div class="check-item"><input type="checkbox" id="tb4" onchange="updateProgress()"><label for="tb4">Steiger geïnspecteerd en goedgekeurd</label></div>
+          <div class="check-item"><input type="checkbox" id="tb5" onchange="updateProgress()"><label for="tb5">PBM's uitgedeeld en gebruik gecontroleerd</label></div>
+          <div class="check-item"><input type="checkbox" id="tb6" onchange="updateProgress()"><label for="tb6">Weersomstandigheden beoordeeld – veilig om te starten</label></div>
+          <div class="check-item"><input type="checkbox" id="tb7" onchange="updateProgress()"><label for="tb7">DC-gevaar zonnepanelen besproken</label></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">✍️ Handtekeningen</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 1</label><input type="text" id="sign1" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
+            <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 2</label><input type="text" id="sign2" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
+            <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 3</label><input type="text" id="sign3" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
+            <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 4</label><input type="text" id="sign4" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">👔 Goedkeuring leidinggevende</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div>
+              <div class="field" style="margin-bottom:8px"><label>Naam + functie</label><input type="text" id="leider_naam" oninput="updateProgress()"></div>
+              <div class="field" style="margin-bottom:8px"><label>Datum & tijd</label><input type="datetime-local" id="leider_dt" onchange="updateProgress()"></div>
+              <div class="field"><label>VCA-certificaatnr.</label><input type="text" id="leider_vca" oninput="updateProgress()"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end">
+              <div class="sig-area" style="height:110px">Handtekening leidinggevende</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer no-print">
+        <button class="btn btn-secondary" onclick="showTab(4)">← Terug</button>
+        <button class="btn btn-success" onclick="saveProject()">💾 Opslaan in database</button>
+      </div>
+
+      <!-- COMPANY FOOTER IN PRINT -->
+      <div style="margin-top:40px;padding-top:16px;border-top:1px solid var(--border);display:none" class="print-only">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray-600)">
+          <div><strong>Koleff Totaaltechniek</strong><br>Rosbayerweg 145, 1521RW Wormerveer</div>
+          <div style="text-align:right">KvK: 97970557 | BTW: NL005300225B29<br>info@koleff.nl | koleff.nl</div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="card">
-    <div class="card-head">⚠️ Risicoanalyse per taak</div>
-    <div class="card-body">
-      <p style="font-size:12px;color:var(--gray-600);margin-bottom:12px">Score = Kans (1–5) × Ernst (1–5). Hoog ≥ 9 | Midden 4–8 | Laag ≤ 3</p>
-      <table class="risk-table">
-        <thead>
-          <tr>
-            <th style="width:22%">Taak / Gevaar</th>
-            <th style="width:7%">Kans</th>
-            <th style="width:7%">Ernst</th>
-            <th style="width:10%">Score</th>
-            <th>Beheersmaatregelen</th>
-          </tr>
-        </thead>
-        <tbody id="riskBody">
-          <tr><td><input type="text" value="Werken op hoogte – steiger zijkant woning"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-h">12 – HOOG</span></td><td><textarea>Volharnas EN 361, valbeveiliger, leuning 1,0m, plintboard 15cm, steiger geïnspecteerd</textarea></td></tr>
-          <tr><td><input type="text" value="Elektrisch gevaar – DC spanning zonnepanelen"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Panelen afdekken bij daglicht, gecertificeerd elektricien, NEN 1010</textarea></td></tr>
-          <tr><td><input type="text" value="Vallend materieel – dakpannen, panelen"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Afzetting openbare weg, helmplicht, gereedschap vastzetten</textarea></td></tr>
-          <tr><td><input type="text" value="Gevaarlijke stoffen – glaswol / PIR isolatie"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">6 – MIDDEN</span></td><td><textarea>FFP2/FFP3 masker, snijvaste handschoenen, lange mouwen, VDB aanwezig</textarea></td></tr>
-          <tr><td><input type="text" value="Ongunstige weersomstandigheden"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Stoptrigger: wind >6 Bft, regen, gladheid, onweer</textarea></td></tr>
-          <tr><td><input type="text" value="Zwaar tillen – dakplaten, panelen &gt;25kg"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-l">6 – LAAG</span></td><td><textarea>Teamtillen, hulpmateriaal, kniebeschermers</textarea></td></tr>
-          <tr><td><input type="text" value="Brandgevaar – isolatiemateriaal / bitumen"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">8 – MIDDEN</span></td><td><textarea>Brandblusser op dak en steiger, geen open vuur bij isolatie</textarea></td></tr>
-          <tr><td><input type="text" value="Asbest – controleren bouwjaar pre-2000"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option></select></td><td class="score-cell"><span class="badge badge-h">10 – HOOG</span></td><td><textarea>SC-540 inventarisatie vóór sloop. Verdacht materiaal NIET aanraken</textarea></td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:10px">
-        <button class="btn btn-secondary no-print" onclick="addRiskRow()" style="font-size:12px;padding:6px 12px">+ Risico toevoegen</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">🚑 EHBO & noodprocedure</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field"><label>EHBO-koffer aanwezig</label><select id="ehbo_aanwezig" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Ja ✓</option><option>Nee – direct regelen ✗</option></select></div>
-        <div class="field"><label>Locatie EHBO-koffer</label><input type="text" id="ehbo_locatie" placeholder="Bijv. werkbus / begane grond" oninput="updateProgress()"></div>
-        <div class="field"><label>EHBO-verantwoordelijke</label><input type="text" id="ehbo_naam" placeholder="Naam" oninput="updateProgress()"></div>
-        <div class="field"><label>Dichtstbijzijnde ziekenhuis</label><input type="text" id="ziekenhuis" value="OLVG Amsterdam – 020 599 9111" oninput="updateProgress()"></div>
-        <div class="field"><label>Alarmnummer spoed</label><input type="text" value="112" readonly style="background:#fdecea;font-weight:700;color:#c0392b"></div>
-        <div class="field"><label>NL Arbeidsinspectie</label><input type="text" value="0800-5151" readonly></div>
-      </div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <div></div>
-    <button class="btn btn-primary" onclick="showTab(1)">Volgende: RI&amp;E →</button>
-  </div>
 </div>
 
-<!-- ===== TAB 2: RI&E ===== -->
-<div class="form-section" id="sec1">
-  <h2 class="print-title section-break">RI&E – Risico-Inventarisatie & Evaluatie</h2>
-  <div class="alert alert-info">ℹ️ <strong>Arbowet art. 5</strong> – verplicht voor alle werkgevers vóór aanvang.</div>
-  <div class="card">
-    <div class="card-head">✅ Checklist – Kinkerstraat 30</div>
-    <div class="card-body">
-      <div class="section-tag">Fysieke gevaren</div>
-      <div class="check-item"><input type="checkbox" id="rie1" onchange="updateProgress()"><label for="rie1">Valgevaar geïdentificeerd en beheersmaatregel vastgesteld<div class="check-sub">Harnas, leuningen, bordes gecontroleerd</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie2" onchange="updateProgress()"><label for="rie2">Gevaar vallend materieel beoordeeld<div class="check-sub">Afzetting straat, helmplicht, veiligheidsnet indien nodig</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie3" onchange="updateProgress()"><label for="rie3">Fysieke belasting (tillen, knielen) geïnventariseerd</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie4" onchange="updateProgress()"><label for="rie4">Weersomstandigheden als risicofactor opgenomen</label></div>
-      <div class="section-tag">Gevaarlijke stoffen</div>
-      <div class="check-item"><input type="checkbox" id="rie5" onchange="updateProgress()"><label for="rie5">VDB isolatiemateriaal aanwezig op locatie<div class="check-sub">Glaswol, steenwol, PIR</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie6" onchange="updateProgress()"><label for="rie6">Blootstelling glaswol / PIR beoordeeld<div class="check-sub">FFP2/FFP3, handschoenen, lange mouwen, bril</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie7" onchange="updateProgress()"><label for="rie7">Asbestverdacht materiaal uitgesloten of inventarisatie gepland<div class="check-sub">⚠️ Pre-2000 gebouw: SC-540 verplicht vóór sloop</div></label></div>
-      <div class="section-tag">Elektrisch & brand</div>
-      <div class="check-item"><input type="checkbox" id="rie8" onchange="updateProgress()"><label for="rie8">DC-spanning zonnepanelen als gevaar aangemerkt</label></div>
-      <div class="check-item"><input type="checkbox" id="rie9" onchange="updateProgress()"><label for="rie9">Brandgevaar geïnventariseerd – brandblusser aanwezig</label></div>
-      <div class="check-item"><input type="checkbox" id="rie10" onchange="updateProgress()"><label for="rie10">Noodschakelaar elektra huis bekend bij medewerkers</label></div>
-      <div class="section-tag">Arbeidsomstandigheden & bouwplaats</div>
-      <div class="check-item"><input type="checkbox" id="rie11" onchange="updateProgress()"><label for="rie11">Sanitaire voorzieningen en drinkwater geregeld</label></div>
-      <div class="check-item"><input type="checkbox" id="rie12" onchange="updateProgress()"><label for="rie12">VCA-certificaten medewerkers gecontroleerd op geldigheid</label></div>
-      <div class="check-item"><input type="checkbox" id="rie13" onchange="updateProgress()"><label for="rie13">Afzetting bouwplaats / openbare weg aangebracht</label></div>
-      <div class="check-item"><input type="checkbox" id="rie14" onchange="updateProgress()"><label for="rie14">Steigervergunning gemeente Amsterdam ontvangen<div class="check-sub">Melddesk Openbare Ruimte: 14 020</div></label></div>
-      <div class="check-item"><input type="checkbox" id="rie15" onchange="updateProgress()"><label for="rie15">Omwonenden geïnformeerd over werkzaamheden</label></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">📝 Evaluatie</div>
-    <div class="card-body">
-      <div class="field"><label>Restrisico's / bijzonderheden</label><textarea id="rie_rest" placeholder="Beschrijf restrisico's..." oninput="updateProgress()"></textarea></div>
-      <div class="grid2" style="margin-top:10px">
-        <div class="field"><label>RI&E opgesteld door</label><input type="text" id="rie_opsteller" placeholder="Naam + functie" oninput="updateProgress()"></div>
-        <div class="field"><label>Datum</label><input type="date" id="rie_datum" onchange="updateProgress()"></div>
-      </div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(0)">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(2)">Volgende: V&amp;G →</button>
-  </div>
-</div>
-
-<!-- ===== TAB 3: V&G ===== -->
-<div class="form-section" id="sec2">
-  <h2 class="print-title section-break">V&G-plan</h2>
-  <div class="card">
-    <div class="card-head">🏗️ Projectpartijen</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field"><label>Opdrachtgever</label><input type="text" value="Nynke Wolf-Stuyt" oninput="updateProgress()"></div>
-        <div class="field"><label>Hoofd-aannemer</label><input type="text" value="Koleff Solar" oninput="updateProgress()"></div>
-        <div class="field"><label>V&G coördinator</label><input type="text" id="vg_coord" placeholder="Naam + tel." oninput="updateProgress()"></div>
-        <div class="field"><label>Steigerbouwer (onderaannemer)</label><input type="text" id="steiger_firma" placeholder="Bedrijf + VCA-nr." oninput="updateProgress()"></div>
-        <div class="field"><label>Startdatum</label><input type="date" id="vg_start" onchange="updateProgress()"></div>
-        <div class="field"><label>Einddatum</label><input type="date" id="vg_eind" onchange="updateProgress()"></div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">📋 Veiligheidsregels</div>
-    <div class="card-body">
-      <div class="check-item"><input type="checkbox" id="vg1" checked onchange="updateProgress()"><label for="vg1">Veiligheidshelm EN 397 verplicht op gehele bouwplaats</label></div>
-      <div class="check-item"><input type="checkbox" id="vg2" checked onchange="updateProgress()"><label for="vg2">Veiligheidsschoenen S3 verplicht</label></div>
-      <div class="check-item"><input type="checkbox" id="vg3" checked onchange="updateProgress()"><label for="vg3">Werken op hoogte >2,5m: harnas + verankeringspunt min. 12 kN</label></div>
-      <div class="check-item"><input type="checkbox" id="vg4" checked onchange="updateProgress()"><label for="vg4">Hi-vis vest nabij openbare weg (Kinkerstraat)</label></div>
-      <div class="check-item"><input type="checkbox" id="vg5" checked onchange="updateProgress()"><label for="vg5">Werkstop bij windkracht >6 Bft, regen, gladheid, onweer</label></div>
-      <div class="check-item"><input type="checkbox" id="vg6" checked onchange="updateProgress()"><label for="vg6">Bouwplaats afgezet, niet toegankelijk voor onbevoegden</label></div>
-      <div class="check-item"><input type="checkbox" id="vg7" onchange="updateProgress()"><label for="vg7">Dagelijkse toolboxmeeting bij aanvang werkzaamheden</label></div>
-      <div class="check-item"><input type="checkbox" id="vg8" onchange="updateProgress()"><label for="vg8">V&G-documenten fysiek aanwezig in werkvoertuig</label></div>
-      <div class="field" style="margin-top:12px"><label>Bijzonderheden / afspraken omwonenden</label><textarea id="vg_bijzonder" placeholder="Bijv. werktijden 07:30-17:00, parkeerafspraken Kinkerstraat..." oninput="updateProgress()"></textarea></div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(1)">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(3)">Volgende: Steiger →</button>
-  </div>
-</div>
-
-<!-- ===== TAB 4: STEIGER ===== -->
-<div class="form-section" id="sec3">
-  <h2 class="print-title section-break">Steiger Inspectierapport</h2>
-  <div class="alert alert-danger">⚠️ Steiger NOOIT gebruiken zonder goedgekeurd inspectierapport (NEN-EN 12811)</div>
-  <div class="card">
-    <div class="card-head">🏗️ Steigergegevens</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field"><label>Steigertype</label><select id="steiger_type" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Gevelsteiger (buissteiger)</option><option>Framesteiger</option><option>Rolsteiger</option></select></div>
-        <div class="field"><label>Locatie steiger</label><input type="text" id="steiger_loc" value="Zijkant woning – Kinkerstraat 30" oninput="updateProgress()"></div>
-        <div class="field"><label>Bouwhoogte (m)</label><input type="number" id="steiger_hoogte" oninput="updateProgress()"></div>
-        <div class="field"><label>Belastingsklasse</label><select id="steiger_klasse" onchange="updateProgress()"><option value="">-- selecteer --</option><option>Klasse 2 – 150 kg/m²</option><option selected>Klasse 3 – 200 kg/m²</option><option>Klasse 4 – 300 kg/m²</option></select></div>
-        <div class="field"><label>Gemonteerd door + certificaat</label><input type="text" id="steiger_monteur" placeholder="Naam – VCA-nr." oninput="updateProgress()"></div>
-        <div class="field"><label>Datum inspectie</label><input type="date" id="steiger_datum" onchange="updateProgress()"></div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">🔍 Inspectiechecklist NEN-EN 12811</div>
-    <div class="card-body">
-      <div class="check-item"><input type="checkbox" id="st1" onchange="updateProgress()"><label for="st1">Fundering / grondankers stabiel – geen verzakking</label></div>
-      <div class="check-item"><input type="checkbox" id="st2" onchange="updateProgress()"><label for="st2">Staanders verticaal (max. afwijking 1:100)</label></div>
-      <div class="check-item"><input type="checkbox" id="st3" onchange="updateProgress()"><label for="st3">Koppelstukken stevig vastgezet</label></div>
-      <div class="check-item"><input type="checkbox" id="st4" onchange="updateProgress()"><label for="st4">Ankers in gevel correct aangebracht</label></div>
-      <div class="check-item"><input type="checkbox" id="st5" onchange="updateProgress()"><label for="st5">Leuning aanwezig op minimaal 1,00 m hoogte</label></div>
-      <div class="check-item"><input type="checkbox" id="st6" onchange="updateProgress()"><label for="st6">Tussenregel op ca. 0,50 m</label></div>
-      <div class="check-item"><input type="checkbox" id="st7" onchange="updateProgress()"><label for="st7">Plintboard minimaal 15 cm hoog</label></div>
-      <div class="check-item"><input type="checkbox" id="st8" onchange="updateProgress()"><label for="st8">Vloerdelen volledig gelegd, geen gaten >25 mm</label></div>
-      <div class="check-item"><input type="checkbox" id="st9" onchange="updateProgress()"><label for="st9">Toegang via interne ladder of trap</label></div>
-      <div class="check-item"><input type="checkbox" id="st10" onchange="updateProgress()"><label for="st10">Afzetting op openbare weg aangebracht</label></div>
-      <div class="check-item"><input type="checkbox" id="st11" onchange="updateProgress()"><label for="st11">Steigervergunning gemeente Amsterdam aanwezig</label></div>
-      <div class="field" style="margin-top:12px">
-        <label>Uitkomst inspectie</label>
-        <select id="steiger_uitkomst" onchange="updateProgress()">
-          <option value="">-- selecteer --</option>
-          <option>✅ GOEDGEKEURD</option>
-          <option>❌ AFGEKEURD – gebruik verboden</option>
-          <option>⚠️ VOORWAARDELIJK – herstel vereist</option>
-        </select>
-      </div>
-      <div class="field" style="margin-top:10px"><label>Gebreken / correcties</label><textarea id="steiger_gebreken" oninput="updateProgress()"></textarea></div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(2)">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(4)">Volgende: PBM →</button>
-  </div>
-</div>
-
-<!-- ===== TAB 5: PBM ===== -->
-<div class="form-section" id="sec4">
-  <h2 class="print-title section-break">PBM-uitgifte & Ontvangst</h2>
-  <div class="card">
-    <div class="card-head">🦺 Medewerker 1</div>
-    <div class="card-body">
-      <div class="grid2" style="margin-bottom:12px">
-        <div class="field"><label>Naam medewerker</label><input type="text" id="pbm1_naam" placeholder="Naam" oninput="updateProgress()"></div>
-        <div class="field"><label>Functie</label><input type="text" id="pbm1_functie" placeholder="Functie" oninput="updateProgress()"></div>
-        <div class="field"><label>Datum uitgifte</label><input type="date" id="pbm1_datum" onchange="updateProgress()"></div>
-        <div class="field"><label>Uitgegeven door</label><input type="text" id="pbm1_door" placeholder="Voorman" oninput="updateProgress()"></div>
-      </div>
-      <div class="check-item"><input type="checkbox" id="p1a" onchange="updateProgress()"><label for="p1a">Veiligheidshelm EN 397</label></div>
-      <div class="check-item"><input type="checkbox" id="p2a" onchange="updateProgress()"><label for="p2a">Veiligheidsschoenen S3</label></div>
-      <div class="check-item"><input type="checkbox" id="p3a" onchange="updateProgress()"><label for="p3a">Volharnas EN 361 + lanyard</label></div>
-      <div class="check-item"><input type="checkbox" id="p4a" onchange="updateProgress()"><label for="p4a">Valbeveiliger EN 360</label></div>
-      <div class="check-item"><input type="checkbox" id="p5a" onchange="updateProgress()"><label for="p5a">Werkhandschoenen EN 388</label></div>
-      <div class="check-item"><input type="checkbox" id="p6a" onchange="updateProgress()"><label for="p6a">Veiligheidsbril EN 166</label></div>
-      <div class="check-item"><input type="checkbox" id="p7a" onchange="updateProgress()"><label for="p7a">Stofmasker FFP2/FFP3 EN 149</label></div>
-      <div class="check-item"><input type="checkbox" id="p8a" onchange="updateProgress()"><label for="p8a">Hi-vis vest EN ISO 20471</label></div>
-      <div class="sig-area">Handtekening medewerker 1</div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">🦺 Medewerker 2</div>
-    <div class="card-body">
-      <div class="grid2" style="margin-bottom:12px">
-        <div class="field"><label>Naam medewerker</label><input type="text" id="pbm2_naam" placeholder="Naam" oninput="updateProgress()"></div>
-        <div class="field"><label>Functie</label><input type="text" id="pbm2_functie" placeholder="Functie" oninput="updateProgress()"></div>
-        <div class="field"><label>Datum uitgifte</label><input type="date" id="pbm2_datum" onchange="updateProgress()"></div>
-        <div class="field"><label>Uitgegeven door</label><input type="text" id="pbm2_door" placeholder="Voorman" oninput="updateProgress()"></div>
-      </div>
-      <div class="check-item"><input type="checkbox" id="p1b" onchange="updateProgress()"><label for="p1b">Veiligheidshelm EN 397</label></div>
-      <div class="check-item"><input type="checkbox" id="p2b" onchange="updateProgress()"><label for="p2b">Veiligheidsschoenen S3</label></div>
-      <div class="check-item"><input type="checkbox" id="p3b" onchange="updateProgress()"><label for="p3b">Volharnas EN 361 + lanyard</label></div>
-      <div class="check-item"><input type="checkbox" id="p4b" onchange="updateProgress()"><label for="p4b">Stofmasker FFP2/FFP3</label></div>
-      <div class="check-item"><input type="checkbox" id="p5b" onchange="updateProgress()"><label for="p5b">Werkhandschoenen + Hi-vis vest</label></div>
-      <div class="sig-area">Handtekening medewerker 2</div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(3)">← Terug</button>
-    <button class="btn btn-primary" onclick="showTab(5)">Volgende: Handtekeningen →</button>
-  </div>
-</div>
-
-<!-- ===== TAB 6: HANDTEKENINGEN ===== -->
-<div class="form-section" id="sec5">
-  <h2 class="print-title section-break">Toolboxmeeting & Akkoordverklaring</h2>
-  <div class="card">
-    <div class="card-head">🗣️ Toolboxmeeting</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field"><label>Datum meeting</label><input type="date" id="toolbox_datum" onchange="updateProgress()"></div>
-        <div class="field"><label>Aanvangstijd</label><input type="time" id="toolbox_tijd" onchange="updateProgress()"></div>
-        <div class="field"><label>Leidinggevende</label><input type="text" id="toolbox_leider" placeholder="Naam + functie" oninput="updateProgress()"></div>
-        <div class="field"><label>Locatie</label><input type="text" value="Kinkerstraat 30-3, Amsterdam" oninput="updateProgress()"></div>
-      </div>
-      <div class="section-tag">Besproken onderwerpen</div>
-      <div class="check-item"><input type="checkbox" id="tb1" onchange="updateProgress()"><label for="tb1">TRA doorgenomen en risico's toegelicht</label></div>
-      <div class="check-item"><input type="checkbox" id="tb2" onchange="updateProgress()"><label for="tb2">Vluchtroute en noodprocedure uitgelegd</label></div>
-      <div class="check-item"><input type="checkbox" id="tb3" onchange="updateProgress()"><label for="tb3">EHBO-koffer en brandblusser aangewezen</label></div>
-      <div class="check-item"><input type="checkbox" id="tb4" onchange="updateProgress()"><label for="tb4">Steiger geïnspecteerd en goedgekeurd</label></div>
-      <div class="check-item"><input type="checkbox" id="tb5" onchange="updateProgress()"><label for="tb5">PBM's uitgedeeld en gebruik gecontroleerd</label></div>
-      <div class="check-item"><input type="checkbox" id="tb6" onchange="updateProgress()"><label for="tb6">Weersomstandigheden beoordeeld – veilig om te starten</label></div>
-      <div class="check-item"><input type="checkbox" id="tb7" onchange="updateProgress()"><label for="tb7">DC-gevaar zonnepanelen besproken</label></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">✍️ Handtekeningen medewerkers</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 1</label><input type="text" id="sign1" placeholder="Naam" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
-        <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 2</label><input type="text" id="sign2" placeholder="Naam" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
-        <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 3</label><input type="text" id="sign3" placeholder="Naam" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
-        <div><div class="field" style="margin-bottom:6px"><label>Naam medewerker 4</label><input type="text" id="sign4" placeholder="Naam" oninput="updateProgress()"></div><div class="sig-area">Handtekening</div></div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-head">👔 Goedkeuring leidinggevende</div>
-    <div class="card-body">
-      <div class="grid2">
-        <div>
-          <div class="field" style="margin-bottom:8px"><label>Naam + functie</label><input type="text" id="leider_naam" placeholder="Naam" oninput="updateProgress()"></div>
-          <div class="field" style="margin-bottom:8px"><label>Datum & tijd</label><input type="datetime-local" id="leider_dt" onchange="updateProgress()"></div>
-          <div class="field"><label>VCA-certificaatnr.</label><input type="text" id="leider_vca" placeholder="Certificaatnr." oninput="updateProgress()"></div>
-        </div>
-        <div style="display:flex;flex-direction:column;justify-content:flex-end">
-          <div class="sig-area" style="height:120px">Handtekening leidinggevende</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="form-footer no-print">
-    <button class="btn btn-secondary" onclick="showTab(4)">← Terug</button>
-    <button class="btn btn-save" onclick="saveToDatabase()" id="saveBtnFooter">💾 Opslaan in database</button>
-  </div>
-</div>
-
-<!-- ===== TAB 7: ARCHIEF ===== -->
-<div class="form-section" id="sec6">
-  <div class="alert alert-info no-print">ℹ️ Hier zie je alle opgeslagen formulieren uit Supabase. Klik op een formulier om het te bekijken of te printen.</div>
-  <div id="archiveContent">
-    <div style="text-align:center;padding:40px;color:var(--gray-400)">
-      <div style="font-size:40px;margin-bottom:12px">🗄️</div>
-      <p>Verbind eerst met Supabase om het archief te laden</p>
-      <button class="btn btn-primary no-print" style="margin:16px auto 0;display:flex" onclick="document.getElementById('configOverlay').classList.add('open')">Database verbinden</button>
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal">
+    <h3>🗑 Project verwijderen?</h3>
+    <p style="font-size:13px;color:var(--gray-600);line-height:1.6">Weet je zeker dat je dit project wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('deleteModal').classList.remove('open')">Annuleren</button>
+      <button class="btn btn-danger" onclick="deleteProject()">Ja, verwijderen</button>
     </div>
   </div>
 </div>
 
-</div><!-- /main -->
+<style>
+@media print { .print-only { display:block!important } }
+</style>
 
 <script>
 // ============================================================
-// SUPABASE CONFIG
+// SUPABASE
 // ============================================================
-let sbClient = null;
-
-// VERVANG DEZE TWEE WAARDEN MET JOUW SUPABASE GEGEVENS:
 const SUPABASE_URL = 'https://oqsafxhyvtaypexkykil.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_QJ3NwPLbGUORmZ1vV7Dbbw_manfC5ej';
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function initSupabase(url, key) {
-  try {
-    sbClient = window.supabase.createClient(url, key);
-    return true;
-  } catch(e) {
-    return false;
+let currentProjectId = null;
+let allProjects = [];
+
+// ============================================================
+// AUTH
+// ============================================================
+async function checkAuth() {
+  const { data: { session } } = await sbClient.auth.getSession();
+  if (session) {
+    document.getElementById('userEmail').textContent = session.user.email;
+    showView('dash');
+    loadDashboard();
+  } else {
+    showView('login');
   }
 }
 
-function saveConfig() {
-  const url = document.getElementById('cfgUrl').value.trim();
-  const key = document.getElementById('cfgKey').value.trim();
-  if (!url || !key) { showToast('Vul beide velden in', 'error'); return; }
-
-  const ok = initSupabase(url, key);
-  if (ok) {
-    sbClient.from('arbo_submissions').select('id').limit(1).then(({error}) => {
-      const dot = document.getElementById('connDot');
-      const msg = document.getElementById('connMsg');
-      if (error && error.code !== 'PGRST116') {
-        dot.className = 'conn-dot err';
-        msg.textContent = 'Verbinding mislukt: ' + error.message;
-      } else {
-        dot.className = 'conn-dot ok';
-        msg.textContent = 'Verbonden! ✓ Tabel arbo_submissions gevonden';
-        document.getElementById('dbIndicator').textContent = '🟢';
-        document.getElementById('saveBtn').disabled = false;
-        document.getElementById('saveBtnFooter').disabled = false;
-        showToast('Supabase verbonden! ✓', 'success');
-      }
-    });
-  }
-}
-
-// Auto-init als constanten al zijn ingevuld
-if (SUPABASE_URL !== 'JOUW_SUPABASE_URL_HIER' && SUPABASE_KEY !== 'JOUW_SUPABASE_ANON_KEY_HIER') {
-  if (initSupabase(SUPABASE_URL, SUPABASE_KEY)) {
-    document.getElementById('dbIndicator').textContent = '🟢';
-    document.getElementById('saveBtn').disabled = false;
-  }
-}
-
-// ============================================================
-// COLLECT ALL FORM DATA
-// ============================================================
-function collectFormData() {
-  const risks = [];
-  document.querySelectorAll('#riskBody tr').forEach(row => {
-    const inp = row.querySelectorAll('input[type=text], select, textarea');
-    if (inp[0]) risks.push({
-      taak: inp[0].value,
-      kans: row.querySelector('.kans-sel')?.value,
-      ernst: row.querySelector('.ernst-sel')?.value,
-      maatregel: row.querySelector('textarea')?.value
-    });
-  });
-
-  const checks = {};
-  document.querySelectorAll('input[type=checkbox]').forEach(c => {
-    checks[c.id] = c.checked;
-  });
-
-  return {
-    project_naam: document.getElementById('proj_naam')?.value || '',
-    opdrachtgever: document.getElementById('opdrachtgever')?.value || '',
-    firma: document.getElementById('firma')?.value || '',
-    adres: document.getElementById('adres')?.value || '',
-    datum_uitvoering: document.getElementById('datum_uitv')?.value || null,
-    aanvangstijd: document.getElementById('tijd_aanv')?.value || null,
-    leidinggevende: document.getElementById('leidinggevende')?.value || '',
-    tra_opsteller: document.getElementById('tra_opsteller')?.value || '',
-    aantal_medewerkers: parseInt(document.getElementById('aantal_mw')?.value) || null,
-    weersverwachting: document.getElementById('weer')?.value || '',
-    risico_analyse: risks,
-    ehbo_aanwezig: document.getElementById('ehbo_aanwezig')?.value || '',
-    ehbo_locatie: document.getElementById('ehbo_locatie')?.value || '',
-    ehbo_naam: document.getElementById('ehbo_naam')?.value || '',
-    rie_restrisicos: document.getElementById('rie_rest')?.value || '',
-    rie_opsteller: document.getElementById('rie_opsteller')?.value || '',
-    rie_datum: document.getElementById('rie_datum')?.value || null,
-    vg_coordinator: document.getElementById('vg_coord')?.value || '',
-    steiger_firma: document.getElementById('steiger_firma')?.value || '',
-    vg_start: document.getElementById('vg_start')?.value || null,
-    vg_eind: document.getElementById('vg_eind')?.value || null,
-    steiger_type: document.getElementById('steiger_type')?.value || '',
-    steiger_hoogte: parseFloat(document.getElementById('steiger_hoogte')?.value) || null,
-    steiger_klasse: document.getElementById('steiger_klasse')?.value || '',
-    steiger_monteur: document.getElementById('steiger_monteur')?.value || '',
-    steiger_datum: document.getElementById('steiger_datum')?.value || null,
-    steiger_uitkomst: document.getElementById('steiger_uitkomst')?.value || '',
-    steiger_gebreken: document.getElementById('steiger_gebreken')?.value || '',
-    pbm1_naam: document.getElementById('pbm1_naam')?.value || '',
-    pbm1_functie: document.getElementById('pbm1_functie')?.value || '',
-    pbm2_naam: document.getElementById('pbm2_naam')?.value || '',
-    pbm2_functie: document.getElementById('pbm2_functie')?.value || '',
-    toolbox_datum: document.getElementById('toolbox_datum')?.value || null,
-    toolbox_leider: document.getElementById('toolbox_leider')?.value || '',
-    medewerkers_namen: [
-      document.getElementById('sign1')?.value,
-      document.getElementById('sign2')?.value,
-      document.getElementById('sign3')?.value,
-      document.getElementById('sign4')?.value
-    ].filter(Boolean),
-    leidinggevende_goedkeuring: document.getElementById('leider_naam')?.value || '',
-    leidinggevende_vca: document.getElementById('leider_vca')?.value || '',
-    checklist_status: checks,
-    ingediend_op: new Date().toISOString(),
-    voortgang_pct: parseInt(document.getElementById('progressPct')?.textContent) || 0
-  };
-}
-
-// ============================================================
-// SAVE TO SUPABASE
-// ============================================================
-async function saveToDatabase() {
-  if (!sbClient) {
-    document.getElementById('configOverlay').classList.add('open');
-    showToast('Verbind eerst met Supabase', 'error');
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Bezig...';
+  const { data, error } = await sbClient.auth.signInWithPassword({ email, password: pwd });
+  if (error) {
+    err.textContent = 'Inloggen mislukt: ' + (error.message === 'Invalid login credentials' ? 'Onjuist e-mailadres of wachtwoord' : error.message);
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Inloggen →';
     return;
   }
-  const btn = document.getElementById('saveBtn');
-  btn.textContent = '⏳ Opslaan...';
-  btn.disabled = true;
+  document.getElementById('userEmail').textContent = data.user.email;
+  showView('dash');
+  loadDashboard();
+}
 
-  const data = collectFormData();
+document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
 
-  try {
-    const { error } = await sbClient.from('arbo_submissions').insert([data]);
-    if (error) throw error;
-    showToast('✅ Formulier opgeslagen in database!', 'success');
-    btn.textContent = '✅ Opgeslagen!';
-    setTimeout(() => { btn.textContent = '💾 Opslaan in DB'; btn.disabled = false; }, 3000);
-    loadArchive();
-  } catch (err) {
-    showToast('❌ Fout: ' + err.message, 'error');
-    btn.textContent = '💾 Opslaan in DB';
-    btn.disabled = false;
-  }
+async function doLogout() {
+  await sbClient.auth.signOut();
+  showView('login');
 }
 
 // ============================================================
-// LOAD ARCHIVE FROM SUPABASE
+// VIEWS
 // ============================================================
-async function loadArchive() {
-  if (!sbClient) return;
-  const container = document.getElementById('archiveContent');
-  container.innerHTML = '<p style="padding:20px;color:var(--gray-600)">Laden...</p>';
+function showView(v) {
+  document.querySelectorAll('.view').forEach(function(el) { el.classList.remove('active'); });
+  const map = { login: 'viewLogin', dash: 'viewDash', form: 'viewForm' };
+  const el = document.getElementById(map[v]);
+  if (el) el.classList.add('active');
+}
 
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  const list = document.getElementById('projectsList');
+  list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Laden...</p></div>';
   const { data, error } = await sbClient
     .from('arbo_submissions')
-    .select('id, project_naam, adres, datum_uitvoering, leidinggevende, voortgang_pct, ingediend_op')
-    .order('ingediend_op', { ascending: false })
-    .limit(50);
-
-  if (error) {
-    container.innerHTML = '<div class="alert alert-danger" style="margin:0">❌ Fout bij laden: ' + error.message + '</div>';
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-400)"><div style="font-size:32px;margin-bottom:12px">📭</div><p>Nog geen formulieren opgeslagen</p></div>';
-    return;
-  }
-
-  let html = '<div class="card"><div class="card-head">📊 Opgeslagen formulieren (' + data.length + ')</div><div class="card-body" style="padding:0">';
-  data.forEach(row => {
-    const datum = row.datum_uitvoering ? new Date(row.datum_uitvoering).toLocaleDateString('nl-NL') : '–';
-    const ingediend = new Date(row.ingediend_op).toLocaleString('nl-NL');
-    const pct = row.voortgang_pct || 0;
-    const pctColor = pct >= 80 ? '#15803d' : pct >= 50 ? '#b45309' : '#c0392b';
-    html += `<div class="sub-row" style="padding:12px 18px">
-      <div>
-        <div style="font-weight:600;font-size:13px">${row.project_naam || 'Naamloos project'}</div>
-        <div style="font-size:12px;color:var(--gray-600)">${row.adres || ''} | ${row.leidinggevende || '–'}</div>
-        <div class="sub-date">Uitvoerdatum: ${datum} | Ingediend: ${ingediend}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:12px;font-weight:700;color:${pctColor}">${pct}%</span>
-        <button class="btn-view" onclick="viewSubmission('${row.id}')">Bekijk →</button>
-      </div>
-    </div>`;
-  });
-  html += '</div></div>';
-  container.innerHTML = html;
+    .select('id,project_naam,adres,opdrachtgever,datum_uitvoering,leidinggevende,voortgang_pct,steiger_uitkomst,ingediend_op')
+    .order('ingediend_op', { ascending: false });
+  if (error) { list.innerHTML = '<div class="empty-state"><p>❌ Fout: ' + error.message + '</p></div>'; return; }
+  allProjects = data || [];
+  renderProjects(allProjects);
+  updateStats(allProjects);
 }
 
-async function viewSubmission(id) {
-  if (!sbClient) return;
-  const { data, error } = await sbClient.from('arbo_submissions').select('*').eq('id', id).single();
-  if (error || !data) { showToast('Kan formulier niet laden', 'error'); return; }
-
-  // Vul formulier opnieuw in
-  Object.keys(data).forEach(key => {
-    const el = document.getElementById(key);
-    if (el && typeof data[key] === 'string') el.value = data[key];
+function updateStats(projects) {
+  const now = new Date();
+  const thisMonth = projects.filter(function(p) {
+    return p.ingediend_op && new Date(p.ingediend_op).getMonth() === now.getMonth() && new Date(p.ingediend_op).getFullYear() === now.getFullYear();
   });
-  if (data.checklist_status) {
-    Object.keys(data.checklist_status).forEach(k => {
-      const cb = document.getElementById(k);
-      if (cb) cb.checked = data.checklist_status[k];
-    });
+  document.getElementById('statTotal').textContent = projects.length;
+  document.getElementById('statThisMonth').textContent = thisMonth.length;
+  document.getElementById('statComplete').textContent = projects.filter(function(p) { return (p.voortgang_pct || 0) >= 80; }).length;
+  document.getElementById('statPending').textContent = projects.filter(function(p) { return (p.voortgang_pct || 0) < 80; }).length;
+}
+
+function filterProjects() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allProjects.filter(function(p) {
+    return (p.project_naam||'').toLowerCase().includes(q) ||
+           (p.adres||'').toLowerCase().includes(q) ||
+           (p.opdrachtgever||'').toLowerCase().includes(q) ||
+           (p.leidinggevende||'').toLowerCase().includes(q);
+  });
+  renderProjects(filtered);
+}
+
+function renderProjects(projects) {
+  const list = document.getElementById('projectsList');
+  if (!projects.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>Geen projecten gevonden</p><button class="btn btn-success" style="margin:16px auto 0;display:flex" onclick="newProject()">+ Eerste project aanmaken</button></div>';
+    return;
   }
+  list.innerHTML = projects.map(function(p) {
+    const pct = p.voortgang_pct || 0;
+    const statusCls = pct >= 80 ? 'badge-done' : pct > 0 ? 'badge-partial' : 'badge-new';
+    const statusLbl = pct >= 80 ? 'Compleet' : pct > 0 ? 'Gedeeltelijk' : 'Nieuw';
+    const datum = p.datum_uitvoering ? new Date(p.datum_uitvoering).toLocaleDateString('nl-NL') : '–';
+    return '<div class="project-row">' +
+      '<div><div class="project-name">' + (p.project_naam || 'Naamloos') + '</div><div class="project-sub">' + (p.adres || '') + '</div></div>' +
+      '<div><div class="project-sub">' + (p.opdrachtgever || '–') + '</div></div>' +
+      '<div style="font-size:13px">' + datum + '</div>' +
+      '<div style="font-size:12px;color:var(--gray-600)">' + (p.leidinggevende || '–') + '</div>' +
+      '<div><span class="badge-status ' + statusCls + '">' + pct + '% – ' + statusLbl + '</span></div>' +
+      '<div class="row-actions">' +
+        '<button class="btn btn-primary btn-sm" onclick="editProject(\'' + p.id + '\')">✏️ Edit</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="editProject(\'' + p.id + '\');setTimeout(function(){window.print()},300)">🖨️</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ============================================================
+// PROJECT CRUD
+// ============================================================
+function newProject() {
+  currentProjectId = null;
+  clearForm();
+  document.getElementById('formTitle').textContent = 'Nieuw project';
+  document.getElementById('formSubtitle').textContent = 'Vul alle tabbladen in en sla op';
+  document.getElementById('deleteBtn').style.display = 'none';
   showTab(0);
-  showToast('Formulier geladen uit archief', 'success');
+  showView('form');
+}
+
+async function editProject(id) {
+  const { data, error } = await sbClient.from('arbo_submissions').select('*').eq('id', id).single();
+  if (error || !data) { showToast('Kan project niet laden', 'error'); return; }
+  currentProjectId = id;
+  clearForm();
+  fillForm(data);
+  document.getElementById('formTitle').textContent = data.project_naam || 'Project bewerken';
+  document.getElementById('formSubtitle').textContent = data.adres || '';
+  document.getElementById('deleteBtn').style.display = 'inline-flex';
+  showTab(0);
+  showView('form');
   updateProgress();
 }
 
+async function saveProject() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = '⏳ Opslaan...';
+  btn.disabled = true;
+  const data = collectFormData();
+  let result;
+  if (currentProjectId) {
+    result = await sbClient.from('arbo_submissions').update(data).eq('id', currentProjectId);
+  } else {
+    result = await sbClient.from('arbo_submissions').insert([data]).select().single();
+    if (result.data) currentProjectId = result.data.id;
+  }
+  btn.textContent = '💾 Opslaan';
+  btn.disabled = false;
+  if (result.error) {
+    showToast('❌ Fout: ' + result.error.message, 'error');
+  } else {
+    showToast('✅ Project opgeslagen!', 'success');
+    document.getElementById('formTitle').textContent = data.project_naam || 'Project';
+    document.getElementById('deleteBtn').style.display = 'inline-flex';
+  }
+}
+
+function confirmDelete() {
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+async function deleteProject() {
+  document.getElementById('deleteModal').classList.remove('open');
+  if (!currentProjectId) return;
+  const { error } = await sbClient.from('arbo_submissions').delete().eq('id', currentProjectId);
+  if (error) { showToast('❌ Verwijderen mislukt', 'error'); return; }
+  showToast('Project verwijderd', 'success');
+  backToDash();
+}
+
+function backToDash() {
+  showView('dash');
+  loadDashboard();
+}
+
 // ============================================================
-// UI HELPERS
+// FORM HELPERS
 // ============================================================
 function showTab(idx) {
   document.querySelectorAll('.form-section').forEach(function(s) { s.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b, i) { b.classList.toggle('active', i === idx); });
   var sec = document.getElementById('sec' + idx);
   if (sec) sec.classList.add('active');
-  if (idx === 6) loadArchive();
   window.scrollTo(0, 0);
 }
 
 function calcRisk(sel) {
-  const row = sel.closest('tr');
-  const k = parseInt(row.querySelector('.kans-sel').value);
-  const e = parseInt(row.querySelector('.ernst-sel').value);
-  const s = k * e;
-  const cls = s >= 9 ? 'badge-h' : s >= 4 ? 'badge-m' : 'badge-l';
-  const lbl = s >= 9 ? 'HOOG' : s >= 4 ? 'MIDDEN' : 'LAAG';
+  var row = sel.closest('tr');
+  var k = parseInt(row.querySelector('.kans-sel').value);
+  var e = parseInt(row.querySelector('.ernst-sel').value);
+  var s = k * e;
+  var cls = s >= 9 ? 'badge-h' : s >= 4 ? 'badge-m' : 'badge-l';
+  var lbl = s >= 9 ? 'HOOG' : s >= 4 ? 'MIDDEN' : 'LAAG';
   row.querySelector('.score-cell').innerHTML = '<span class="badge ' + cls + '">' + s + ' – ' + lbl + '</span>';
 }
 
 function addRiskRow() {
-  const tr = document.createElement('tr');
+  var tr = document.createElement('tr');
   tr.innerHTML = '<td><input type="text" placeholder="Taak / gevaar"></td><td><select class="kans-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td><select class="ernst-sel" onchange="calcRisk(this)"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></td><td class="score-cell"><span class="badge badge-m">9 – MIDDEN</span></td><td><textarea placeholder="Beheersmaatregelen..."></textarea></td>';
   document.getElementById('riskBody').appendChild(tr);
 }
 
 function updateProgress() {
-  const inputs = document.querySelectorAll('.form-section input:not([readonly]), .form-section select, .form-section textarea');
-  let filled = 0, total = 0;
-  inputs.forEach(el => {
+  var inputs = document.querySelectorAll('.form-section input:not([readonly]), .form-section select, .form-section textarea');
+  var filled = 0, total = 0;
+  inputs.forEach(function(el) {
     total++;
     if (el.type === 'checkbox') { if (el.checked) filled++; }
     else if (el.value && el.value.trim()) filled++;
   });
-  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  var pct = total > 0 ? Math.round((filled / total) * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '%';
 }
 
+function clearForm() {
+  document.querySelectorAll('#viewForm input:not([readonly]), #viewForm select, #viewForm textarea').forEach(function(el) {
+    if (el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  // Restore defaults
+  var firma = document.getElementById('firma');
+  if (firma) firma.value = 'Koleff Totaaltechniek';
+  var vgAannemer = document.getElementById('vg_aannemer');
+  if (vgAannemer) vgAannemer.value = 'Koleff Totaaltechniek';
+  var ziekenhuis = document.getElementById('ziekenhuis');
+  if (ziekenhuis) ziekenhuis.value = 'OLVG Amsterdam – 020 599 9111';
+  // Reset risk scores
+  document.querySelectorAll('.kans-sel, .ernst-sel').forEach(function(s) { calcRisk(s); });
+  updateProgress();
+}
+
+function collectFormData() {
+  var risks = [];
+  document.querySelectorAll('#riskBody tr').forEach(function(row) {
+    var inputs = row.querySelectorAll('input[type=text], textarea');
+    risks.push({
+      taak: inputs[0] ? inputs[0].value : '',
+      kans: row.querySelector('.kans-sel') ? row.querySelector('.kans-sel').value : '',
+      ernst: row.querySelector('.ernst-sel') ? row.querySelector('.ernst-sel').value : '',
+      maatregel: inputs[1] ? inputs[1].value : ''
+    });
+  });
+  var checks = {};
+  document.querySelectorAll('#viewForm input[type=checkbox]').forEach(function(c) { checks[c.id] = c.checked; });
+
+  function v(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+
+  return {
+    project_naam: v('proj_naam'), opdrachtgever: v('opdrachtgever'), firma: v('firma'),
+    adres: v('adres'), datum_uitvoering: v('datum_uitv') || null, aanvangstijd: v('tijd_aanv') || null,
+    leidinggevende: v('leidinggevende'), tra_opsteller: v('tra_opsteller'),
+    aantal_medewerkers: parseInt(v('aantal_mw')) || null, weersverwachting: v('weer'),
+    risico_analyse: risks, ehbo_aanwezig: v('ehbo_aanwezig'), ehbo_locatie: v('ehbo_locatie'),
+    ehbo_naam: v('ehbo_naam'), rie_restrisicos: v('rie_rest'), rie_opsteller: v('rie_opsteller'),
+    rie_datum: v('rie_datum') || null, vg_coordinator: v('vg_coord'), steiger_firma: v('steiger_firma'),
+    vg_start: v('vg_start') || null, vg_eind: v('vg_eind') || null,
+    steiger_type: v('steiger_type'), steiger_hoogte: parseFloat(v('steiger_hoogte')) || null,
+    steiger_klasse: v('steiger_klasse'), steiger_monteur: v('steiger_monteur'),
+    steiger_datum: v('steiger_datum') || null, steiger_uitkomst: v('steiger_uitkomst'),
+    steiger_gebreken: v('steiger_gebreken'), pbm1_naam: v('pbm1_naam'), pbm1_functie: v('pbm1_functie'),
+    pbm2_naam: v('pbm2_naam'), pbm2_functie: v('pbm2_functie'),
+    toolbox_datum: v('toolbox_datum') || null, toolbox_leider: v('toolbox_leider'),
+    medewerkers_namen: [v('sign1'),v('sign2'),v('sign3'),v('sign4')].filter(Boolean),
+    leidinggevende_goedkeuring: v('leider_naam'), leidinggevende_vca: v('leider_vca'),
+    checklist_status: checks, ingediend_op: new Date().toISOString(),
+    voortgang_pct: parseInt(document.getElementById('progressPct').textContent) || 0
+  };
+}
+
+function fillForm(data) {
+  function set(id, val) { var el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; }
+  set('proj_naam', data.project_naam); set('opdrachtgever', data.opdrachtgever);
+  set('firma', data.firma); set('adres', data.adres);
+  set('datum_uitv', data.datum_uitvoering); set('tijd_aanv', data.aanvangstijd);
+  set('leidinggevende', data.leidinggevende); set('tra_opsteller', data.tra_opsteller);
+  set('aantal_mw', data.aantal_medewerkers); set('weer', data.weersverwachting);
+  set('ehbo_aanwezig', data.ehbo_aanwezig); set('ehbo_locatie', data.ehbo_locatie);
+  set('ehbo_naam', data.ehbo_naam); set('ziekenhuis', data.ziekenhuis || 'OLVG Amsterdam – 020 599 9111');
+  set('rie_rest', data.rie_restrisicos); set('rie_opsteller', data.rie_opsteller);
+  set('rie_datum', data.rie_datum); set('vg_coord', data.vg_coordinator);
+  set('vg_opdrachtgever', data.opdrachtgever); set('steiger_firma', data.steiger_firma);
+  set('vg_start', data.vg_start); set('vg_eind', data.vg_eind);
+  set('steiger_type', data.steiger_type); set('steiger_hoogte', data.steiger_hoogte);
+  set('steiger_klasse', data.steiger_klasse); set('steiger_monteur', data.steiger_monteur);
+  set('steiger_datum', data.steiger_datum); set('steiger_uitkomst', data.steiger_uitkomst);
+  set('steiger_gebreken', data.steiger_gebreken); set('pbm1_naam', data.pbm1_naam);
+  set('pbm1_functie', data.pbm1_functie); set('pbm2_naam', data.pbm2_naam);
+  set('pbm2_functie', data.pbm2_functie); set('toolbox_datum', data.toolbox_datum);
+  set('toolbox_leider', data.toolbox_leider); set('leider_naam', data.leidinggevende_goedkeuring);
+  set('leider_vca', data.leidinggevende_vca);
+  var names = data.medewerkers_namen || [];
+  ['sign1','sign2','sign3','sign4'].forEach(function(id, i) { set(id, names[i] || ''); });
+  if (data.checklist_status) {
+    Object.keys(data.checklist_status).forEach(function(k) {
+      var cb = document.getElementById(k);
+      if (cb) cb.checked = data.checklist_status[k];
+    });
+  }
+  document.querySelectorAll('.kans-sel, .ernst-sel').forEach(function(s) { calcRisk(s); });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
 function showToast(msg, type) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast ' + (type || '');
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 4000);
+  setTimeout(function() { t.classList.remove('show'); }, 4000);
 }
 
-// Init
-document.querySelectorAll('.kans-sel').forEach(s => calcRisk(s));
-updateProgress();
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('.kans-sel').forEach(function(s) { calcRisk(s); });
+checkAuth();
 </script>
 </body>
 </html>
