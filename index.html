@@ -550,7 +550,7 @@
 // ============================================================
 // SUPABASE CONFIG
 // ============================================================
-let supabase = null;
+let sbClient = null;
 
 // VERVANG DEZE TWEE WAARDEN MET JOUW SUPABASE GEGEVENS:
 const SUPABASE_URL = 'JOUW_SUPABASE_URL_HIER';
@@ -558,7 +558,7 @@ const SUPABASE_KEY = 'JOUW_SUPABASE_ANON_KEY_HIER';
 
 function initSupabase(url, key) {
   try {
-    supabase = window.supabase.createClient(url, key);
+    sbClient = window.supabase.createClient(url, key);
     return true;
   } catch(e) {
     return false;
@@ -572,7 +572,7 @@ function saveConfig() {
 
   const ok = initSupabase(url, key);
   if (ok) {
-    supabase.from('arbo_submissions').select('id').limit(1).then(({error}) => {
+    sbClient.from('arbo_submissions').select('id').limit(1).then(({error}) => {
       const dot = document.getElementById('connDot');
       const msg = document.getElementById('connMsg');
       if (error && error.code !== 'PGRST116') {
@@ -671,7 +671,7 @@ function collectFormData() {
 // SAVE TO SUPABASE
 // ============================================================
 async function saveToDatabase() {
-  if (!supabase) {
+  if (!sbClient) {
     document.getElementById('configOverlay').classList.add('open');
     showToast('Verbind eerst met Supabase', 'error');
     return;
@@ -683,7 +683,7 @@ async function saveToDatabase() {
   const data = collectFormData();
 
   try {
-    const { error } = await supabase.from('arbo_submissions').insert([data]);
+    const { error } = await sbClient.from('arbo_submissions').insert([data]);
     if (error) throw error;
     showToast('✅ Formulier opgeslagen in database!', 'success');
     btn.textContent = '✅ Opgeslagen!';
@@ -700,11 +700,11 @@ async function saveToDatabase() {
 // LOAD ARCHIVE FROM SUPABASE
 // ============================================================
 async function loadArchive() {
-  if (!supabase) return;
+  if (!sbClient) return;
   const container = document.getElementById('archiveContent');
   container.innerHTML = '<p style="padding:20px;color:var(--gray-600)">Laden...</p>';
 
-  const { data, error } = await supabase
+  const { data, error } = await sbClient
     .from('arbo_submissions')
     .select('id, project_naam, adres, datum_uitvoering, leidinggevende, voortgang_pct, ingediend_op')
     .order('ingediend_op', { ascending: false })
@@ -743,8 +743,8 @@ async function loadArchive() {
 }
 
 async function viewSubmission(id) {
-  if (!supabase) return;
-  const { data, error } = await supabase.from('arbo_submissions').select('*').eq('id', id).single();
+  if (!sbClient) return;
+  const { data, error } = await sbClient.from('arbo_submissions').select('*').eq('id', id).single();
   if (error || !data) { showToast('Kan formulier niet laden', 'error'); return; }
 
   // Vul formulier opnieuw in
