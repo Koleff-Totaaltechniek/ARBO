@@ -72,8 +72,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--gray
 .stat-card .num{font-size:28px;font-weight:700;color:var(--blue-dark)}
 .stat-card .lbl{font-size:12px;color:var(--gray-600);margin-top:2px}
 .projects-table-wrap{background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.projects-table-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 120px;gap:8px;padding:10px 16px;background:var(--gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-600)}
-.project-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 120px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--gray-100);align-items:center;transition:background .1s}
+.projects-table-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 160px;gap:8px;padding:10px 16px;background:var(--gray-50);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-600)}
+.project-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 160px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--gray-100);align-items:center;transition:background .1s}
 .project-row:last-child{border-bottom:none}
 .project-row:hover{background:var(--gray-50)}
 .project-name{font-weight:600;font-size:13px;color:var(--gray-800)}
@@ -620,9 +620,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--gray
 <div class="modal-backdrop" id="deleteModal">
   <div class="modal">
     <h3>🗑 Project verwijderen?</h3>
-    <p style="font-size:13px;color:var(--gray-600);line-height:1.6">Weet je zeker dat je dit project wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</p>
+    <p style="font-size:13px;color:var(--gray-600);line-height:1.6">Weet je zeker dat je <strong><span id="deleteModalName">dit project</span></strong> wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</p>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="document.getElementById('deleteModal').classList.remove('open')">Annuleren</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('deleteModal').classList.remove('open');pendingDeleteId=null">Annuleren</button>
       <button class="btn btn-danger" onclick="deleteProject()">Ja, verwijderen</button>
     </div>
   </div>
@@ -641,6 +641,7 @@ const SUPABASE_KEY = 'sb_publishable_QJ3NwPLbGUORmZ1vV7Dbbw_manfC5ej';
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentProjectId = null;
+let pendingDeleteId = null;
 let allProjects = [];
 
 // ============================================================
@@ -755,6 +756,7 @@ function renderProjects(projects) {
       '<div class="row-actions">' +
         '<button class="btn btn-primary btn-sm" onclick="editProject(\'' + p.id + '\')">✏️ Edit</button>' +
         '<button class="btn btn-secondary btn-sm" onclick="editProject(\'' + p.id + '\');setTimeout(function(){window.print()},300)">🖨️</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="confirmDeleteDash(\'' + p.id + '\',\'' + (p.project_naam||'dit project').replace(/'/g,"\\'") + '\')">🗑</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -811,16 +813,31 @@ async function saveProject() {
 }
 
 function confirmDelete() {
+  pendingDeleteId = currentProjectId;
+  var naam = document.getElementById('proj_naam').value || 'dit project';
+  document.getElementById('deleteModalName').textContent = naam;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function confirmDeleteDash(id, naam) {
+  pendingDeleteId = id;
+  document.getElementById('deleteModalName').textContent = naam;
   document.getElementById('deleteModal').classList.add('open');
 }
 
 async function deleteProject() {
   document.getElementById('deleteModal').classList.remove('open');
-  if (!currentProjectId) return;
-  const { error } = await sbClient.from('arbo_submissions').delete().eq('id', currentProjectId);
+  const idToDelete = pendingDeleteId || currentProjectId;
+  if (!idToDelete) return;
+  const { error } = await sbClient.from('arbo_submissions').delete().eq('id', idToDelete);
   if (error) { showToast('❌ Verwijderen mislukt', 'error'); return; }
   showToast('Project verwijderd', 'success');
-  backToDash();
+  pendingDeleteId = null;
+  if (idToDelete === currentProjectId) {
+    backToDash();
+  } else {
+    loadDashboard();
+  }
 }
 
 function backToDash() {
